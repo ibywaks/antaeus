@@ -6,5 +6,5 @@ data class Subscription(
     val amount: Money,
     val createdAt: Long,
     val updatedAt: Long,
-    val deletedAt: Long
+    val deletedAt: Long?
 )

@@ -7,6 +7,7 @@
 
 package io.pleo.antaeus.data
 
+import io.pleo.antaeus.models.Subscription
 import io.pleo.antaeus.models.Currency
 import io.pleo.antaeus.models.Customer
 import io.pleo.antaeus.models.Invoice
@@ -38,7 +39,7 @@ class AntaeusDal(private val db: Database) {
         }
     }
 
-    fun createInvoice(amount: Money, customer: Customer, status: InvoiceStatus = InvoiceStatus.PENDING): Invoice? {
+    fun createInvoice(amount: Money, customer: Customer, subscription: Subscription, status: InvoiceStatus = InvoiceStatus.PENDING): Invoice? {
         val id = transaction(db) {
             // Insert the invoice and returns its new id.
             InvoiceTable
@@ -47,10 +48,36 @@ class AntaeusDal(private val db: Database) {
                     it[this.currency] = amount.currency.toString()
                     it[this.status] = status.toString()
                     it[this.customerId] = customer.id
+                    it[this.subscriptionId] = subscription.id
                 } get InvoiceTable.id
         }
 
         return fetchInvoice(id)
+    }
+
+    fun fetchSubscription(id: Int): Subscription? {
+        // transaction(db) runs the internal query as a new database transaction.
+        return transaction(db) {
+            // Returns the first invoice with matching id.
+            SubscriptionTable
+                .select { SubscriptionTable.id.eq(id) }
+                .firstOrNull()
+                ?.toSubscription()
+        }
+    }
+
+    fun createSubscription(amount: Money, customer: Customer): Subscription? {
+        val id = transaction(db) {
+            // Insert the subscription and return its new id.
+            SubscriptionTable
+                .insert {
+                    it[this.value] = amount.value
+                    it[this.currency] = amount.currency.toString()
+                    it[this.customerId] = customer.id
+                } get SubscriptionTable.id
+        }
+
+        return fetchSubscription(id)
     }
 
     fun fetchCustomer(id: Int): Customer? {

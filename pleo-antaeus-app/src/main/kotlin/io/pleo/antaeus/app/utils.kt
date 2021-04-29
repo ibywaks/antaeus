@@ -16,18 +16,43 @@ internal fun setupInitialData(dal: AntaeusDal) {
         )
     }
 
-    customers.forEach { customer ->
-        (1..10).forEach {
-            dal.createInvoice(
-                amount = Money(
-                    value = BigDecimal(Random.nextDouble(10.0, 500.0)),
-                    currency = customer.currency
-                ),
-                customer = customer,
-                status = if (it == 1) InvoiceStatus.PENDING else InvoiceStatus.PAID
-            )
+    val subscriptions = customers.mapNotNull { customer ->
+        dal.createSubscription(
+            amount = Money(
+                value = BigDecimal(Random.nextDouble(10.0, 500.0)),
+                currency = customer.currency
+            ),
+            customer = customer
+        )
+    }
+
+    subscriptions.forEach { subscription ->
+        val subscriptionCustomer = customers.find{c -> c.id == subscription.customerId}
+
+        if (subscriptionCustomer != null) {
+            (1..10).forEach {
+                dal.createInvoice(
+                    amount = subscription.amount,
+                    customer = subscriptionCustomer,
+                    subscription = subscription,
+                    status = if (it == 1) InvoiceStatus.PENDING else InvoiceStatus.PAID
+                )
+            }
         }
     }
+
+    // customers.forEach { customer ->
+    //     (1..10).forEach {
+    //         dal.createInvoice(
+    //             amount = Money(
+    //                 value = BigDecimal(Random.nextDouble(10.0, 500.0)),
+    //                 currency = customer.currency
+    //             ),
+    //             customer = customer,
+    //             status = if (it == 1) InvoiceStatus.PENDING else InvoiceStatus.PAID
+    //         )
+    //     }
+    // }
 }
 
 // This is the mocked instance of the payment provider
