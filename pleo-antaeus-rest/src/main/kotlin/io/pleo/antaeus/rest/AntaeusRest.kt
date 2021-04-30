@@ -58,7 +58,7 @@ class AntaeusRest(
                     path("invoices") {
                         // URL: /rest/v1/invoices
                         get {
-                            it.json(invoiceService.fetchAll())
+                            it.json(invoiceService.fetchAll(false, null))
                         }
 
                         // URL: /rest/v1/invoices/{:id}
@@ -70,7 +70,7 @@ class AntaeusRest(
                     path("customers") {
                         // URL: /rest/v1/customers
                         get {
-                            it.json(customerService.fetchAll())
+                            it.json(customerService.fetchAll(false, null))
                         }
 
                         // URL: /rest/v1/customers/{:id}

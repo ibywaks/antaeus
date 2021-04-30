@@ -19,8 +19,10 @@ import io.pleo.antaeus.models.InvoiceUpdateSchema
 import io.pleo.antaeus.models.SubscriptionUpdateSchema
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.update
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.Date
 
@@ -37,12 +39,12 @@ class AntaeusDal(private val db: Database) {
         }
     }
 
-    fun fetchInvoices(isDeleted: Bool = false, status: InvoiceStatus?): List<Invoice> {
+    fun fetchInvoices(isDeleted: Boolean = false, status: InvoiceStatus?): List<Invoice> {
         return transaction(db) {
             val query = InvoiceTable.selectAll()
 
-            if (status)
-                query.andWhere{ InvoiceTable.status eq status.toString() }
+            if (status != null)
+                query.andWhere{ InvoiceTable.status.eq(status.toString()) }
 
             if (!isDeleted) {
                 query.andWhere{ InvoiceTable.deletedAt.isNull() }
@@ -55,23 +57,24 @@ class AntaeusDal(private val db: Database) {
     }
 
     fun updateInvoice(id: Int, updates: InvoiceUpdateSchema): Invoice? {
-        val id = transaction(db) {
+        transaction(db) {
             // Update the invoice and return its id
-            InvoiceTable.update({ InvoiceTable.id eq id }) {
-                if (update.amount) {
-                    it[value] = update.amount.value
-                    it[currency] = update.amount.currency.toString()
+            InvoiceTable.update({ InvoiceTable.id.eq(id) }) {
+                val amount = updates.amount
+                if (amount != null) {
+                    it[value] = amount.value
+                    it[currency] = amount.currency.toString()
                 }
 
-                if (updates.status)
+                if (updates.status != null)
                     it[status] = updates.status.toString()
 
-                if (updates.paymentRef)
+                if (updates.paymentRef != null)
                     it[paymentRef] = updates.paymentRef
 
                 if (updates.isDeleted)
                     it[deletedAt] = Date().getTime()
-            } get InvoiceTable.id
+            }
         }
 
         return fetchInvoice(id)
@@ -106,7 +109,7 @@ class AntaeusDal(private val db: Database) {
         }
     }
 
-    fun fetchSubscriptions(isDeleted: Bool = false): List<Subscription> {
+    fun fetchSubscriptions(isDeleted: Boolean = false): List<Subscription> {
         return transaction(db) {
             val query = SubscriptionTable.selectAll()
 
@@ -120,18 +123,19 @@ class AntaeusDal(private val db: Database) {
         }
     }
 
-    fun updateSubscription(id: Int, updates: SubscriptionUpdateSchema): Subscription {
-        val id = transaction(db) {
+    fun updateSubscription(id: Int, updates: SubscriptionUpdateSchema): Subscription? {
+        transaction(db) {
             // Update subscription and return its id
             SubscriptionTable.update({ SubscriptionTable.id eq id }) {
-                if (updates.amount) {
-                    it[value] = updates.amount.value
-                    it[currency] = updates.amount.currency.toString()
+                val amount = updates.amount
+                if (amount != null) {
+                    it[value] = amount.value
+                    it[currency] = amount.currency.toString()
                 }
 
                 if (updates.isDeleted)
                     it[deletedAt] = Date().getTime()
-            } get SubscriptionTable.id
+            }
         }
 
         return fetchSubscription(id)
@@ -162,11 +166,11 @@ class AntaeusDal(private val db: Database) {
         }
     }
 
-    fun fetchCustomers(isDeleted: Bool = false, status: CustomerStatus?): List<Customer> {
+    fun fetchCustomers(isDeleted: Boolean = false, status: CustomerStatus?): List<Customer> {
         return transaction(db) {
             val query = CustomerTable.selectAll()
 
-            if (status)
+            if (status != null)
                 query.andWhere{ CustomerTable.status eq status.toString() }
 
             if (!isDeleted) {
@@ -179,16 +183,16 @@ class AntaeusDal(private val db: Database) {
         }
     }
 
-    fun updateCustomer(id: Int, updates: CustomerUpdateSchema): Customer {
-        val id = transaction(db) {
+    fun updateCustomer(id: Int, updates: CustomerUpdateSchema): Customer? {
+        transaction(db) {
             // Update Customer table entry and return updated row's id
             CustomerTable.update({ CustomerTable.id.eq(id) }) {
-                if (updates.status)
+                if (updates.status != null)
                     it[status] = updates.status.toString()
 
-                if (update.isDeleted)
+                if (updates.isDeleted)
                     it[deletedAt] = Date().getTime()
-            } get CustomerTable.id
+            }
         }
 
         return fetchCustomer(id)
