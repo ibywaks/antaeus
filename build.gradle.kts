@@ -1,5 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
+var YEAR = 2021
+
 plugins {
     base
     kotlin("jvm") version "1.3.70" apply false
@@ -10,19 +12,16 @@ allprojects {
     group = "io.pleo"
     version = "1.0"
 
-    apply(plugin = "com.diffplug.gradle.spotless")
+    apply(plugin = "com.diffplug.spotless")
 
     spotless {
         kotlin {
             // by default the target is every '.kt' and '.kts` file in the java sourcesets
+            target("src/**/*.kt", "src/**/*.kts")
             ktlint()   // has its own section below
             ktfmt()    // has its own section below
             prettier() // has its own section below
-            licenseHeader '/* (C)$YEAR */' // or licenseHeaderFile
-        }
-        kotlinGradle {
-            target '*.gradle.kts' // default target for kotlinGradle
-            ktlint() // or ktfmt() or prettier()
+            licenseHeader("/* (C)$YEAR */") // or licenseHeaderFile
         }
     }
 
