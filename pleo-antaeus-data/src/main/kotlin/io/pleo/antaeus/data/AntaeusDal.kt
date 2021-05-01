@@ -129,7 +129,7 @@ class AntaeusDal(private val db: Database) {
                 }
 
                 if (updates.isDeleted)
-                    it[deletedAt] = Date().getTime()
+                    it[deletedAt] = Date().time
             }
         }
 
@@ -143,6 +143,7 @@ class AntaeusDal(private val db: Database) {
                 .insert {
                     it[this.value] = amount.value
                     it[this.currency] = amount.currency.toString()
+                    it[this.planId] = plan.id
                     it[this.customerId] = customer.id
                 } get SubscriptionTable.id
         }
@@ -186,7 +187,7 @@ class AntaeusDal(private val db: Database) {
                     it[status] = updates.status.toString()
 
                 if (updates.isDeleted)
-                    it[deletedAt] = Date().getTime()
+                    it[deletedAt] = Date().time
             }
         }
 
@@ -213,6 +214,15 @@ class AntaeusDal(private val db: Database) {
         }
     }
 
+    fun fetchSubscriptionPlans(isDeleted: Boolean = false): List<SubscriptionPlan> {
+        val query = SubscriptionPlanTable.selectAll()
+
+        if (!isDeleted)
+            query.andWhere { SubscriptionPlanTable.deletedAt.isNull() }
+
+        return query.map { it.toSubscriptionPlan() }
+    }
+
     fun createSubscriptionPlan(name: String, amount: Money): SubscriptionPlan? {
         val id = transaction(db) {
             SubscriptionPlanTable.insert {
@@ -222,6 +232,29 @@ class AntaeusDal(private val db: Database) {
             } get SubscriptionPlanTable.id
         }
 
-        fetchSubscriptionPlan(id)
+        return fetchSubscriptionPlan(id)
+    }
+
+    fun updateSubscriptionPlan(id: Int, updates: SubscriptionPlanUpdateSchema): SubscriptionPlan? {
+        transaction(db) {
+            SubscriptionPlanTable.update {
+                val amount = updates.amount
+                val newName = updates.name
+
+                if (amount != null) {
+                    it[value] = amount.value
+                    it[currency] = amount.currency.toString()
+                }
+
+                if (newName != null) {
+                    it[name] = newName
+                }
+
+                if (updates.isDeleted)
+                    it[deletedAt] = Date().time
+            }
+        }
+
+        return fetchSubscriptionPlan(id)
     }
 }

@@ -16,3 +16,9 @@ data class CustomerUpdateSchema(
     val status: CustomerStatus? = null,
     val isDeleted: Boolean = false
 )
+
+data class SubscriptionPlanUpdateSchema(
+    val name: String? = null,
+    val amount: Money? = null,
+    val isDeleted: Boolean = false
+)
