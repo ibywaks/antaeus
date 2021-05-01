@@ -5,5 +5,6 @@ enum class Currency {
     USD,
     DKK,
     SEK,
-    GBP
+    GBP,
+    NGN
 }

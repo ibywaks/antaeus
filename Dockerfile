@@ -8,4 +8,5 @@ COPY . .
 
 EXPOSE 7000
 # When the container starts: build, test and run the app.
-CMD ./gradlew -t build && ./gradlew test && ./gradlew run
+# CMD ./gradlew build && ./gradlew test && ./gradlew run
+CMD ./gradlew test
