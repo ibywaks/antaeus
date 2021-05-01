@@ -13,8 +13,8 @@ class SubscriptionService(private val dal: AntaeusDal) {
         return dal.fetchSubscription(id) ?: throw SubscriptionNotFoundException(id)
     }
 
-    fun fetchAll(isDeleted: Boolean = false): List<Subscription> {
-        return dal.fetchSubscriptions(isDeleted)
+    fun fetchAll(isDeleted: Boolean = false, customer: Customer? = null): List<Subscription> {
+        return dal.fetchSubscriptions(isDeleted, customer)
     }
 
     fun update(id: Int, updates: SubscriptionUpdateSchema): Subscription {
