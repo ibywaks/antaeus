@@ -72,6 +72,10 @@ class InvoiceServiceTest {
         every { fetchInvoice(203) } returns result2
         every { fetchInvoice(205) } returns result3
 
+        every { fetchInvoices() } returns listOf(result1, result3)
+        every { fetchInvoices(true) } returns listOf(result2)
+        every { fetchInvoices(false, InvoiceStatus.PAID) } returns listOf(result3)
+
     }
 
     private val invoiceService = InvoiceService(dal = dal)
