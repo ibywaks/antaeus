@@ -8,7 +8,10 @@ import io.pleo.antaeus.data.AntaeusDal
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import com.beust.klaxon.Klaxon
+import io.pleo.antaeus.core.exceptions.CustomerNotCreatedException
+import io.pleo.antaeus.models.Currency
 import io.pleo.antaeus.models.CustomerStatus
+import io.pleo.antaeus.models.CustomerUpdateSchema
 import org.junit.jupiter.api.Assertions.*
 
 class CustomerServiceTest {
@@ -48,6 +51,32 @@ class CustomerServiceTest {
             }
         """.trimIndent())
 
+        val result4 = Klaxon().parse<Customer>("""
+            {
+                "id": 203,
+                "currency": "NGN",
+                "status": "INACTIVE",
+                "createdAt": 1619725878925,
+                "updatedAt": 1619725878925,
+                "deletedAt": null
+            }
+        """.trimIndent())
+
+        val result5 = Klaxon().parse<Customer>("""
+            {
+                "id": 203,
+                "currency": "NGN",
+                "status": "ACTIVE",
+                "createdAt": 1619725878925,
+                "updatedAt": 1619725878925,
+                "deletedAt": 1619725878925
+            }
+        """.trimIndent())
+
+        val customerUpdates1 = CustomerUpdateSchema(status = CustomerStatus.INACTIVE)
+        val customerUpdates2 = CustomerUpdateSchema(isDeleted = true)
+
+
         every { fetchCustomer(404) } returns null
 
         every { fetchCustomer(200) } returns result1
@@ -57,6 +86,13 @@ class CustomerServiceTest {
         every { fetchCustomers(true, null) } returns listOf((result2 as Customer))
         every { fetchCustomers(false, null) } returns listOf((result1 as Customer), (result3 as Customer))
         every { fetchCustomers(false, CustomerStatus.INACTIVE ) } returns listOf(result3)
+
+        every { updateCustomer(251, customerUpdates1) } returns null
+        every { updateCustomer(203, customerUpdates1) } returns result4
+        every { updateCustomer(203, customerUpdates2) } returns result5
+
+        every { createCustomer(Currency.NGN) } returns result1
+        every { createCustomer(Currency.SEK) } returns null
     }
 
     private val customerService = CustomerService(dal = dal)
@@ -119,5 +155,48 @@ class CustomerServiceTest {
 
         assertEquals(results.size, 1)
         assertNull(results[0].deletedAt)
+    }
+
+    @Test
+    fun `will update the status of a customer`() {
+        val updates = CustomerUpdateSchema(status = CustomerStatus.INACTIVE)
+        val result = customerService.update(203, updates)
+
+        assertEquals(result.id, 203)
+        assertEquals(result.status, CustomerStatus.INACTIVE)
+        assertNull(result.deletedAt)
+    }
+
+    @Test
+    fun `will soft delete a customer`() {
+        val updates = CustomerUpdateSchema(isDeleted = true)
+        val result = customerService.update(203, updates)
+
+        assertEquals(result.id, 203)
+        assertNotNull(result.deletedAt)
+    }
+
+    @Test
+    fun `will throw when customer does not exist`() {
+        val updates = CustomerUpdateSchema(status = CustomerStatus.INACTIVE)
+
+        assertThrows<CustomerNotFoundException> {
+            customerService.update(251, updates)
+        }
+    }
+
+    @Test
+    fun `will create an active customer`() {
+        val result = customerService.create(Currency.NGN)
+
+        assertEquals(result.status, CustomerStatus.ACTIVE)
+        assertNull(result.deletedAt)
+    }
+
+    @Test
+    fun `will throw when unable to create customer`() {
+        assertThrows<CustomerNotCreatedException> {
+            customerService.create(Currency.SEK)
+        }
     }
 }
