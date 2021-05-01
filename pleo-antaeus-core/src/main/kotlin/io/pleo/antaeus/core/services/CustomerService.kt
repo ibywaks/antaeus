@@ -10,7 +10,7 @@ import io.pleo.antaeus.models.Customer
 import io.pleo.antaeus.models.CustomerStatus
 
 class CustomerService(private val dal: AntaeusDal) {
-    fun fetchAll(isDeleted: Boolean = false, status: CustomerStatus?): List<Customer> {
+    fun fetchAll(isDeleted: Boolean = false, status: CustomerStatus? = null): List<Customer> {
         return dal.fetchCustomers(isDeleted, status)
     }
 
