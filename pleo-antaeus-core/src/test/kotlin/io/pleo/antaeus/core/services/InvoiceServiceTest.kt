@@ -10,6 +10,7 @@ import io.pleo.antaeus.models.Subscription
 import io.pleo.antaeus.models.InvoiceStatus
 import io.pleo.antaeus.models.InvoiceUpdateSchema
 import io.pleo.antaeus.core.exceptions.InvoiceNotFoundException
+import io.pleo.antaeus.core.exceptions.InvoiceNotCreatedException
 import io.pleo.antaeus.data.AntaeusDal
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -106,13 +107,30 @@ class InvoiceServiceTest {
                 "subscriptionId": 12,
                 "amount": {
                     "value": 5000,
-                    "currency": "USD"
+                    "currency": "NGN"
                 },
                 "status": "PENDING",
                 "paymentRef": null,
                 "createdAt": 1619725878925,
                 "updatedAt": 1619725878925,
                 "deletedAt": 1619725878925
+            }
+        """)
+
+        val result6 = Klaxon().parse<Invoice>("""
+            {
+                "id": 200,
+                "customerId": 12,
+                "subscriptionId": 12,
+                "amount": {
+                    "value": 10000,
+                    "currency": "NGN"
+                },
+                "status": "PENDING",
+                "paymentRef": null,
+                "createdAt": 1619725878925,
+                "updatedAt": 1619725878925,
+                "deletedAt": null
             }
         """)
 
@@ -129,6 +147,8 @@ class InvoiceServiceTest {
             createdAt = 1619725878925,
             updatedAt = 1619725878925
         )
+        val customAmount1 = Money(value = BigDecimal(10000), currency = Currency.NGN)
+        val customAmount2 = Money(value = BigDecimal(10), currency = Currency.NGN)
 
         every { fetchInvoice(404) } returns null
         every { fetchInvoice(200) } returns result1
@@ -145,6 +165,8 @@ class InvoiceServiceTest {
         every { updateInvoice(220, invoiceUpdates1) } returns null
 
         every { createInvoice(subscription1.amount, customer1, subscription1) } returns result1
+        every { createInvoice(customAmount1, customer1, subscription1) } returns result6
+        every { createInvoice(customAmount2, customer1, subscription1) } returns null
 
     }
 
@@ -185,5 +207,145 @@ class InvoiceServiceTest {
         assertEquals(result.paymentRef, "ABCDEF12345")
         assertEquals(result.status, InvoiceStatus.PAID)
         assertNull(result.deletedAt)
+    }
+
+    // fetch invoices test
+    @Test
+    fun `will get 1 paid invoice`() {
+        val result = invoiceService.fetchAll(false, InvoiceStatus.PAID)
+
+        assertEquals(result.size, 1)
+        assertEquals(result[0].status, InvoiceStatus.PAID)
+    }
+
+    @Test
+    fun `will get undeleted invoices`() {
+        val result = invoiceService.fetchAll(false)
+
+        assertEquals(result.size, 2)
+        assertNull(result[0].deletedAt)
+        assertNull(result[1].deletedAt)
+    }
+
+    @Test
+    fun `will get soft deleted invoices`() {
+        val result = invoiceService.fetchAll(true)
+
+        assertEquals(result.size, 1)
+        assertNotNull(result[0].deletedAt)
+    }
+
+    // update invoices Test
+    @Test
+    fun `will update invoice amount`() {
+        val updates = InvoiceUpdateSchema(
+            amount = Money(value = BigDecimal(6000), currency = Currency.USD)
+        )
+
+        val result = invoiceService.update(200, updates)
+
+        assertEquals(result.amount.value, BigDecimal(6000))
+        assertEquals(result.amount.currency, Currency.USD)
+        assertNull(result.deletedAt)
+    }
+
+    @Test
+    fun `will soft delete an invoice`() {
+        val updates = InvoiceUpdateSchema(
+            isDeleted = true
+        )
+
+        val result = invoiceService.update(200, updates)
+
+        assertEquals(result.amount.value, BigDecimal(5000))
+        assertEquals(result.amount.currency, Currency.NGN)
+        assertNotNull(result.deletedAt)
+    }
+
+    @Test
+    fun `will throw if invoice does not exist`() {
+        val updates = InvoiceUpdateSchema(
+            amount = Money(value = BigDecimal(6000), currency = Currency.USD)
+        )
+
+        assertThrows<InvoiceNotFoundException> {
+            invoiceService.update(220, updates)
+        }
+    }
+
+    // create invoice test
+    @Test
+    fun `will create a new invoice with subscription amount`() {
+        val customer = Customer(
+            id = 12,
+            currency = Currency.NGN,
+            createdAt = 1619725878925,
+            updatedAt = 1619725878925
+        )
+        val subscription = Subscription(
+            id = 12,
+            customerId = customer.id,
+            amount = Money(value = BigDecimal(5000), currency = Currency.NGN),
+            createdAt = 1619725878925,
+            updatedAt = 1619725878925
+        )
+
+        val result = invoiceService.create(customer, subscription)
+
+        assertEquals(result.status, InvoiceStatus.PENDING)
+        assertEquals(result.customerId, customer.id)
+        assertEquals(result.subscriptionId, subscription.id)
+        assertEquals(result.amount.value, subscription.amount.value)
+        assertEquals(result.amount.currency, subscription.amount.currency)
+        assertNull(result.deletedAt)
+    }
+
+    @Test
+    fun `will create a new invoice with custom amount`() {
+        val customer = Customer(
+            id = 12,
+            currency = Currency.NGN,
+            createdAt = 1619725878925,
+            updatedAt = 1619725878925
+        )
+        val subscription = Subscription(
+            id = 12,
+            customerId = customer.id,
+            amount = Money(value = BigDecimal(5000), currency = Currency.NGN),
+            createdAt = 1619725878925,
+            updatedAt = 1619725878925
+        )
+        val customAmount = Money(value = BigDecimal(10000), currency = Currency.NGN)
+
+        val result = invoiceService.create(customer, subscription, customAmount)
+
+        assertEquals(result.status, InvoiceStatus.PENDING)
+        assertEquals(result.customerId, customer.id)
+        assertEquals(result.subscriptionId, subscription.id)
+        assertEquals(result.amount.value, customAmount.value)
+        assertEquals(result.amount.currency, customAmount.currency)
+        assertNull(result.deletedAt)
+    }
+
+    @Test
+    fun `will throw if invoice not created`() {
+        val customer = Customer(
+            id = 12,
+            currency = Currency.NGN,
+            createdAt = 1619725878925,
+            updatedAt = 1619725878925
+        )
+        val subscription = Subscription(
+            id = 12,
+            customerId = customer.id,
+            amount = Money(value = BigDecimal(5000), currency = Currency.NGN),
+            createdAt = 1619725878925,
+            updatedAt = 1619725878925
+        )
+        val customAmount = Money(value = BigDecimal(10), currency = Currency.NGN)
+
+        assertThrows<InvoiceNotCreatedException> {
+            invoiceService.create(customer, subscription, customAmount)
+        }
     }
 }
