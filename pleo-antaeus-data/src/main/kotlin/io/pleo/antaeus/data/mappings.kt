@@ -5,13 +5,7 @@
 
 package io.pleo.antaeus.data
 
-import io.pleo.antaeus.models.Currency
-import io.pleo.antaeus.models.Customer
-import io.pleo.antaeus.models.Invoice
-import io.pleo.antaeus.models.InvoiceStatus
-import io.pleo.antaeus.models.CustomerStatus
-import io.pleo.antaeus.models.Subscription
-import io.pleo.antaeus.models.Money
+import io.pleo.antaeus.models.*
 import org.jetbrains.exposed.sql.ResultRow
 
 fun ResultRow.toInvoice(): Invoice = Invoice(
@@ -44,8 +38,21 @@ fun ResultRow.toSubscription(): Subscription = Subscription(
         value = this[SubscriptionTable.value],
         currency = Currency.valueOf(this[SubscriptionTable.currency])
     ),
+    planId = this[SubscriptionTable.planId],
     customerId = this[SubscriptionTable.customerId],
     createdAt = this[SubscriptionTable.createdAt],
     updatedAt = this[SubscriptionTable.updatedAt],
     deletedAt = this[SubscriptionTable.deletedAt]
+)
+
+fun ResultRow.toSubscriptionPlan(): SubscriptionPlan = SubscriptionPlan(
+    id = this[SubscriptionPlanTable.id],
+    amount = Money(
+        value = this[SubscriptionPlanTable.value],
+        currency = Currency.valueOf(this[SubscriptionPlanTable.currency])
+    ),
+    name = this[SubscriptionPlanTable.name],
+    createdAt = this[SubscriptionPlanTable.createdAt],
+    updatedAt = this[SubscriptionPlanTable.updatedAt],
+    deletedAt = this[SubscriptionPlanTable.deletedAt]
 )

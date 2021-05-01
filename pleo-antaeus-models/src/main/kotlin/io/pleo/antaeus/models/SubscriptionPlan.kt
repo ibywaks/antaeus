@@ -1,9 +1,8 @@
 package io.pleo.antaeus.models
 
-data class Subscription(
+data class SubscriptionPlan(
     val id: Int,
-    val planId: Int,
-    val customerId: Int,
+    val name: String,
     val amount: Money,
     val createdAt: Long,
     val updatedAt: Long,
