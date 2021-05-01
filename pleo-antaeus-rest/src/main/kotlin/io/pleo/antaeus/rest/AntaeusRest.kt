@@ -62,12 +62,12 @@ class AntaeusRest(
                         // URL: /rest/v1/invoices
                         get {
                             val isDeleted = it.queryParam("is_deleted") ?: false
-                            val status = it.queryParam("status") ?: null
+                            val status = it.queryParam("status")
 
                             var selectedStatus: InvoiceStatus? = null
 
                             if (status != null) {
-                                selectedStatus = InvoiceStatus.valueOf(status as String)
+                                selectedStatus = InvoiceStatus.valueOf(status)
                             }
 
                             it.json(invoiceService.fetchAll(isDeleted as Boolean, selectedStatus))
@@ -99,7 +99,11 @@ class AntaeusRest(
 
                                 if (subscriptions.isEmpty()) throw NoCustomerSubscriptionException(customerId)
 
-                                it.json(invoiceService.create(customer as Customer, subscriptions[0], customAmount))
+                                it.json(invoiceService.create(
+                                    customer,
+                                    subscriptions[0],
+                                    customAmount
+                                ))
                             } catch (e: CustomerNotFoundException) {
                                 it.status(400).result(e.message ?: "Customer $customerId not found")
                             } catch (e: InvoiceNotCreatedException) {
@@ -113,8 +117,9 @@ class AntaeusRest(
 
                         //URL: /rest/v1/invoices/{:id}
                         put(":id") {
+                            val id = it.pathParam("id").toInt()
+
                             try {
-                                val id = it.pathParam("id").toInt()
                                 val amount = it.formParam("amount")?.toBigDecimal()
                                 val currency = it.formParam("currency")
                                 val status = it.formParam("status")
@@ -132,7 +137,7 @@ class AntaeusRest(
                                 }
 
                                 if (status != null) {
-                                    newStatus = InvoiceStatus.valueOf(status as String)
+                                    newStatus = InvoiceStatus.valueOf(status)
                                 }
 
                                 it.json(invoiceService.update(
@@ -157,7 +162,7 @@ class AntaeusRest(
                             var selectedStatus: CustomerStatus? = null
 
                             if (status != null) {
-                                selectedStatus = CustomerStatus.valueOf(status as String)
+                                selectedStatus = CustomerStatus.valueOf(status)
                             }
 
                             it.json(customerService.fetchAll(isDeleted as Boolean, selectedStatus))
@@ -177,7 +182,7 @@ class AntaeusRest(
                                 customerCurrency = Currency.valueOf(currency)
                             }
 
-                            //@todo get customer plans
+                            // @todo get customer plans
                             val planAmount = Money(
                                 value = BigDecimal(5000),
                                 currency = customerCurrency
