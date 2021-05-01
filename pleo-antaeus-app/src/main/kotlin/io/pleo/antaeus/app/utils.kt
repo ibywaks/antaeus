@@ -1,15 +1,17 @@
 
 import io.pleo.antaeus.core.external.PaymentProvider
 import io.pleo.antaeus.data.AntaeusDal
-import io.pleo.antaeus.models.Currency
-import io.pleo.antaeus.models.Invoice
-import io.pleo.antaeus.models.InvoiceStatus
-import io.pleo.antaeus.models.Money
+import io.pleo.antaeus.models.*
 import java.math.BigDecimal
 import kotlin.random.Random
 
 // This will create all schemas and setup initial data
 internal fun setupInitialData(dal: AntaeusDal) {
+    val subscriptionPlan = dal.createSubscriptionPlan("Basic Plan", Money(
+            value = BigDecimal(50),
+            currency = Currency.USD
+        )
+    )
     val customers = (1..100).mapNotNull {
         dal.createCustomer(
             currency = Currency.values()[Random.nextInt(0, Currency.values().size)]
@@ -18,6 +20,7 @@ internal fun setupInitialData(dal: AntaeusDal) {
 
     val subscriptions = customers.mapNotNull { customer ->
         dal.createSubscription(
+            plan = subscriptionPlan as SubscriptionPlan,
             amount = Money(
                 value = BigDecimal(Random.nextDouble(10.0, 500.0)),
                 currency = customer.currency

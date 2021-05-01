@@ -7,16 +7,7 @@
 
 package io.pleo.antaeus.data
 
-import io.pleo.antaeus.models.Subscription
-import io.pleo.antaeus.models.Currency
-import io.pleo.antaeus.models.Customer
-import io.pleo.antaeus.models.Invoice
-import io.pleo.antaeus.models.InvoiceStatus
-import io.pleo.antaeus.models.CustomerStatus
-import io.pleo.antaeus.models.Money
-import io.pleo.antaeus.models.CustomerUpdateSchema
-import io.pleo.antaeus.models.InvoiceUpdateSchema
-import io.pleo.antaeus.models.SubscriptionUpdateSchema
+import io.pleo.antaeus.models.*
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.update
@@ -145,7 +136,7 @@ class AntaeusDal(private val db: Database) {
         return fetchSubscription(id)
     }
 
-    fun createSubscription(amount: Money, customer: Customer): Subscription? {
+    fun createSubscription(plan: SubscriptionPlan, amount: Money, customer: Customer): Subscription? {
         val id = transaction(db) {
             // Insert the subscription and return its new id.
             SubscriptionTable
@@ -211,5 +202,26 @@ class AntaeusDal(private val db: Database) {
         }
 
         return fetchCustomer(id)
+    }
+
+    fun fetchSubscriptionPlan(id: Int): SubscriptionPlan? {
+        return transaction(db) {
+            SubscriptionPlanTable
+                .select { SubscriptionPlanTable.id.eq(id) }
+                .firstOrNull()
+                ?.toSubscriptionPlan()
+        }
+    }
+
+    fun createSubscriptionPlan(name: String, amount: Money): SubscriptionPlan? {
+        val id = transaction(db) {
+            SubscriptionPlanTable.insert {
+                it[this.name] = name
+                it[this.value] = amount.value
+                it[this.currency] = amount.currency.toString()
+            } get SubscriptionPlanTable.id
+        }
+
+        fetchSubscriptionPlan(id)
     }
 }
