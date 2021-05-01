@@ -140,6 +140,7 @@ class InvoiceServiceTest {
             createdAt = 1619725878925,
             updatedAt = 1619725878925
         )
+
         val subscription1 = Subscription(
             id = 12,
             customerId = customer1.id,
