@@ -18,7 +18,6 @@ import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.sql.Timestamp
 import java.time.LocalDate
-import java.time.temporal.TemporalAdjuster
 import java.time.temporal.TemporalAdjusters
 import java.util.*
 
@@ -82,15 +81,23 @@ class AntaeusDal(private val db: Database) {
         return fetchInvoice(id)
     }
 
-    fun createInvoice(amount: Money, customer: Customer, subscription: Subscription, description: String? = null, status: InvoiceStatus = InvoiceStatus.PENDING): Invoice? {
+    fun createInvoice(
+        amount: Money,
+        customer: Customer,
+        subscription: Subscription,
+        description: String? = null,
+        startDate: Long? = null,
+        endDate: Long? = null,
+        status: InvoiceStatus = InvoiceStatus.PENDING
+    ): Invoice? {
         val id = transaction(db) {
             // Insert the invoice and returns its new id.
             InvoiceTable
                 .insert {
                     it[this.value] = amount.value
                     it[this.description] = description
-                    it[this.chargeStartDate] = Date().time
-                    it[this.chargeEndDate] = Timestamp.valueOf(LocalDate.now().with(TemporalAdjusters.lastDayOfMonth()).toString()).time
+                    it[this.chargeStartDate] = startDate ?: Date().time
+                    it[this.chargeEndDate] = endDate ?: Timestamp.valueOf(LocalDate.now().with(TemporalAdjusters.lastDayOfMonth()).toString()).time
                     it[this.currency] = amount.currency.toString()
                     it[this.status] = status.toString()
                     it[this.customerId] = customer.id

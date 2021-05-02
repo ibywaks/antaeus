@@ -13,7 +13,10 @@ import io.pleo.antaeus.core.services.SubscriptionPlanService
 import io.pleo.antaeus.core.services.SubscriptionService
 import io.pleo.antaeus.models.*
 import mu.KotlinLogging
-import java.math.BigDecimal
+import java.sql.Timestamp
+import java.time.LocalDate
+import java.time.temporal.TemporalAdjusters
+import java.util.Date
 
 private val logger = KotlinLogging.logger {}
 private val thisFile: () -> Unit = {}
@@ -191,6 +194,10 @@ class AntaeusRest(
                                 val subscription = subscriptionService.create(subscriptionPlan, customer)
 
                                 // @todo create 1st invoice based on subscription date
+                                val startDate = Date().time
+                                val endDate = Timestamp.valueOf(LocalDate.now().with(TemporalAdjusters.lastDayOfMonth()).toString()).time
+
+                                invoiceService.create(customer, subscription, null, startDate, endDate)
 
                                 it.json(customer)
                             } catch (e: CustomerNotCreatedException) {
