@@ -6,7 +6,7 @@ data class InvoiceUpdateSchema(
     val status: InvoiceStatus? = null,
     val isDeleted: Boolean = false,
     val startDate: Long? = null,
-    val endDate: Long? = null,
+    val endDate: Long? = null
 )
 
 data class SubscriptionUpdateSchema(
