@@ -24,6 +24,9 @@ fun Project.kotlinProject() {
         "testImplementation"("org.junit.jupiter:junit-jupiter-api:$junitVersion")
         "testImplementation"("org.junit.jupiter:junit-jupiter-params:$junitVersion")
         "runtime"("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
+
+        //DotEnv
+        "implementation"("io.github.cdimascio:dotenv-kotlin:6.2.2")
     }
 }
 

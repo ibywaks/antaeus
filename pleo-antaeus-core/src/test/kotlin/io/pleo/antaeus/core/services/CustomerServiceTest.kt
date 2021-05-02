@@ -143,7 +143,7 @@ class CustomerServiceTest {
     @Test
     fun `will return a list of soft deleted customers`() {
         val results = customerService.fetchAll(true, null)
-        
+
         assertEquals(results.size, 1)
         assertNotNull(results[0].deletedAt)
     }
