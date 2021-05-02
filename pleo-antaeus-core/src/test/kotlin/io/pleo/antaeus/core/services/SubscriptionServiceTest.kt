@@ -91,6 +91,14 @@ class SubscriptionServiceTest {
             updatedAt = 1619725878925
         )
 
+        val subscriptionPlan = SubscriptionPlan(
+            id = 12,
+            name = "Basic plan",
+            amount = Money(value = BigDecimal(5000), currency = Currency.NGN),
+            createdAt = 1619725878925,
+            updatedAt = 1619725878925
+        )
+
         every { fetchSubscription(404) } returns null
         every { fetchSubscription(200) } returns result1
         every { fetchSubscription(203) } returns result2
@@ -102,8 +110,8 @@ class SubscriptionServiceTest {
         every { updateSubscription(200, subscriptionUpdate2) } returns result4
         every { updateSubscription(251, subscriptionUpdate1) } returns null
 
-        every { createSubscription(amount1, customer1) } returns result1
-        every { createSubscription(amount2, customer1) } returns null
+        every { createSubscription(subscriptionPlan, amount1, customer1) } returns result1
+        every { createSubscription(subscriptionPlan, amount2, customer1) } returns null
     }
 
     private val subscriptionService = SubscriptionService(dal = dal)
@@ -154,6 +162,14 @@ class SubscriptionServiceTest {
             currency = Currency.NGN
         )
 
+        val subscriptionPlan = SubscriptionPlan(
+            id = 12,
+            name = "Basic plan",
+            amount = Money(value = BigDecimal(5000), currency = Currency.NGN),
+            createdAt = 1619725878925,
+            updatedAt = 1619725878925
+        )
+
         val customer = Customer(
             id = 12,
             currency = Currency.NGN,
@@ -161,7 +177,7 @@ class SubscriptionServiceTest {
             updatedAt = 1619725878925
         )
 
-        val result = subscriptionService.create(customer, amount)
+        val result = subscriptionService.create(subscriptionPlan, customer, amount)
 
         assertEquals(result.customerId, customer.id)
         assertEquals(result.amount.value, amount.value)
@@ -176,6 +192,14 @@ class SubscriptionServiceTest {
             currency = Currency.SEK
         )
 
+        val subscriptionPlan = SubscriptionPlan(
+            id = 12,
+            name = "Basic plan",
+            amount = Money(value = BigDecimal(5000), currency = Currency.NGN),
+            createdAt = 1619725878925,
+            updatedAt = 1619725878925
+        )
+
         val customer = Customer(
             id = 12,
             currency = Currency.NGN,
@@ -184,7 +208,7 @@ class SubscriptionServiceTest {
         )
 
         assertThrows<SubscriptionNotCreatedException> {
-            subscriptionService.create(customer, amount)
+            subscriptionService.create(subscriptionPlan, customer, amount)
         }
     }
 }

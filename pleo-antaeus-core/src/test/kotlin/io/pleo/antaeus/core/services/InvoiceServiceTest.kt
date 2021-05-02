@@ -2,13 +2,6 @@ package io.pleo.antaeus.core.services
 
 import io.mockk.every
 import io.mockk.mockk
-import io.pleo.antaeus.models.Money
-import io.pleo.antaeus.models.Invoice
-import io.pleo.antaeus.models.Currency
-import io.pleo.antaeus.models.Customer
-import io.pleo.antaeus.models.Subscription
-import io.pleo.antaeus.models.InvoiceStatus
-import io.pleo.antaeus.models.InvoiceUpdateSchema
 import io.pleo.antaeus.core.exceptions.InvoiceNotFoundException
 import io.pleo.antaeus.core.exceptions.InvoiceNotCreatedException
 import io.pleo.antaeus.data.AntaeusDal
@@ -18,6 +11,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertNotNull
 import com.beust.klaxon.Klaxon
+import io.pleo.antaeus.models.*
 import java.math.BigDecimal
 import java.util.Date
 
@@ -143,6 +137,7 @@ class InvoiceServiceTest {
 
         val subscription1 = Subscription(
             id = 12,
+            planId = 12,
             customerId = customer1.id,
             amount = Money(value = BigDecimal(5000), currency = Currency.NGN),
             createdAt = 1619725878925,
@@ -285,6 +280,7 @@ class InvoiceServiceTest {
         )
         val subscription = Subscription(
             id = 12,
+            planId = 12,
             customerId = customer.id,
             amount = Money(value = BigDecimal(5000), currency = Currency.NGN),
             createdAt = 1619725878925,
@@ -311,6 +307,7 @@ class InvoiceServiceTest {
         )
         val subscription = Subscription(
             id = 12,
+            planId = 12,
             customerId = customer.id,
             amount = Money(value = BigDecimal(5000), currency = Currency.NGN),
             createdAt = 1619725878925,
@@ -338,6 +335,7 @@ class InvoiceServiceTest {
         )
         val subscription = Subscription(
             id = 12,
+            planId = 12,
             customerId = customer.id,
             amount = Money(value = BigDecimal(5000), currency = Currency.NGN),
             createdAt = 1619725878925,

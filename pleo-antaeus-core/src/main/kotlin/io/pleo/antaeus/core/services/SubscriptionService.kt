@@ -3,10 +3,7 @@ package io.pleo.antaeus.core.services
 import io.pleo.antaeus.core.exceptions.SubscriptionNotCreatedException
 import io.pleo.antaeus.core.exceptions.SubscriptionNotFoundException
 import io.pleo.antaeus.data.AntaeusDal
-import io.pleo.antaeus.models.Customer
-import io.pleo.antaeus.models.Money
-import io.pleo.antaeus.models.Subscription
-import io.pleo.antaeus.models.SubscriptionUpdateSchema
+import io.pleo.antaeus.models.*
 
 class SubscriptionService(private val dal: AntaeusDal) {
     fun fetch(id: Int): Subscription {
@@ -21,7 +18,7 @@ class SubscriptionService(private val dal: AntaeusDal) {
         return dal.updateSubscription(id, updates) ?: throw SubscriptionNotFoundException(id)
     }
 
-    fun create(customer: Customer, amount: Money): Subscription {
-        return dal.createSubscription(amount, customer) ?: throw SubscriptionNotCreatedException()
+    fun create(plan: SubscriptionPlan, customer: Customer, amount: Money): Subscription {
+        return dal.createSubscription(plan, amount, customer) ?: throw SubscriptionNotCreatedException()
     }
 }
