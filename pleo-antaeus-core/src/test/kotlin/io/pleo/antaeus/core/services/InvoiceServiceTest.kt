@@ -29,6 +29,9 @@ class InvoiceServiceTest {
                 },
                 "status": "PENDING",
                 "paymentRef": null,
+                "description": "Initial invoice charge for 20days",
+                "chargeStartDate": 1619725878925,
+                "chargeEndDate": 1619725878925,
                 "createdAt": 1619725878925,
                 "updatedAt": 1619725878925,
                 "deletedAt": null
@@ -46,6 +49,9 @@ class InvoiceServiceTest {
                 },
                 "status": "PENDING",
                 "paymentRef": null,
+                "description": "Initial invoice charge for 11days",
+                "chargeStartDate": 1619725878925,
+                "chargeEndDate": 1619725878925,
                 "createdAt": 1619725878925,
                 "updatedAt": 1619725878925,
                 "deletedAt": 1619725878955
@@ -63,6 +69,9 @@ class InvoiceServiceTest {
                 },
                 "status": "PAID",
                 "paymentRef": "ABCDEF12345",
+                "description": null,
+                "chargeStartDate": 1619725878925,
+                "chargeEndDate": 1619725878925,
                 "createdAt": 1619725878925,
                 "updatedAt": 1619725878925,
                 "deletedAt": null
@@ -88,6 +97,9 @@ class InvoiceServiceTest {
                 },
                 "status": "PENDING",
                 "paymentRef": null,
+                "description": "Initial invoice charge for 20days",
+                "chargeStartDate": 1619725878925,
+                "chargeEndDate": 1619725878925,
                 "createdAt": 1619725878925,
                 "updatedAt": 1619725878925,
                 "deletedAt": null
@@ -105,6 +117,9 @@ class InvoiceServiceTest {
                 },
                 "status": "PENDING",
                 "paymentRef": null,
+                "description": "Initial invoice charge for 20days",
+                "chargeStartDate": 1619725878925,
+                "chargeEndDate": 1619725878925,
                 "createdAt": 1619725878925,
                 "updatedAt": 1619725878925,
                 "deletedAt": 1619725878925
@@ -122,6 +137,9 @@ class InvoiceServiceTest {
                 },
                 "status": "PENDING",
                 "paymentRef": null,
+                "description": "Initial invoice charge for 20days",
+                "chargeStartDate": 1619725878925,
+                "chargeEndDate": 1619725878925,
                 "createdAt": 1619725878925,
                 "updatedAt": 1619725878925,
                 "deletedAt": null
