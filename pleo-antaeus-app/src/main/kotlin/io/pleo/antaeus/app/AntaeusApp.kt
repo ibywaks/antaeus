@@ -8,10 +8,7 @@
 package io.pleo.antaeus.app
 
 import getPaymentProvider
-import io.pleo.antaeus.core.services.BillingService
-import io.pleo.antaeus.core.services.CustomerService
-import io.pleo.antaeus.core.services.InvoiceService
-import io.pleo.antaeus.core.services.SubscriptionService
+import io.pleo.antaeus.core.services.*
 import io.pleo.antaeus.data.*
 import io.pleo.antaeus.rest.AntaeusRest
 import org.jetbrains.exposed.sql.Database
@@ -59,6 +56,7 @@ fun main() {
     val invoiceService = InvoiceService(dal = dal)
     val customerService = CustomerService(dal = dal)
     val subscriptionService = SubscriptionService(dal = dal)
+    val subscriptionPlanService = SubscriptionPlanService(dal = dal)
 
     // This is _your_ billing service to be included where you see fit
     val billingService = BillingService(paymentProvider = paymentProvider)
@@ -67,6 +65,7 @@ fun main() {
     AntaeusRest(
         invoiceService = invoiceService,
         customerService = customerService,
-        subscriptionService = subscriptionService
+        subscriptionService = subscriptionService,
+        subscriptionPlanService = subscriptionPlanService
     ).run()
 }

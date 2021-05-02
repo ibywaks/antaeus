@@ -9,6 +9,7 @@ import io.javalin.apibuilder.ApiBuilder.*
 import io.pleo.antaeus.core.exceptions.*
 import io.pleo.antaeus.core.services.CustomerService
 import io.pleo.antaeus.core.services.InvoiceService
+import io.pleo.antaeus.core.services.SubscriptionPlanService
 import io.pleo.antaeus.core.services.SubscriptionService
 import io.pleo.antaeus.models.*
 import mu.KotlinLogging
@@ -20,7 +21,8 @@ private val thisFile: () -> Unit = {}
 class AntaeusRest(
     private val invoiceService: InvoiceService,
     private val customerService: CustomerService,
-    private val subscriptionService: SubscriptionService
+    private val subscriptionService: SubscriptionService,
+    private val subscriptionPlanService: SubscriptionPlanService
 ) : Runnable {
 
     override fun run() {
@@ -176,6 +178,7 @@ class AntaeusRest(
                         // URL: /rest/v1/customers
                         post {
                             val currency = it.formParam("currency")
+                            val planId = it.formParam("plan_id")?.toInt()
 
                             var customerCurrency: Currency = Currency.USD
                             if (currency != null) {
@@ -189,8 +192,9 @@ class AntaeusRest(
                             )
 
                             try {
+                                val subscriptionPlan = subscriptionPlanService.fetch(planId as Int)
                                 val customer = customerService.create(customerCurrency)
-                                val subscription = subscriptionService.create(customer, planAmount)
+                                val subscription = subscriptionService.create(subscriptionPlan, customer, planAmount)
 
                                 // @todo create 1st invoice based on subscription date
 
