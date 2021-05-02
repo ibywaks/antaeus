@@ -18,6 +18,7 @@ class SubscriptionServiceTest {
             {
                 "id": 200,
                 "customerId": 12,
+                "planId": 12,
                 "amount": {
                     "value": 5000,
                     "currency": "NGN"
@@ -32,6 +33,7 @@ class SubscriptionServiceTest {
             {
                 "id": 203,
                 "customerId": 12,
+                "planId": 12,
                 "amount": {
                     "value": 5000,
                     "currency": "NGN"
@@ -52,6 +54,7 @@ class SubscriptionServiceTest {
             {
                 "id": 200,
                 "customerId": 12,
+                "planId": 12,
                 "amount": {
                     "value": 10000,
                     "currency": "NGN"
@@ -66,6 +69,7 @@ class SubscriptionServiceTest {
             {
                 "id": 200,
                 "customerId": 12,
+                "planId": 12,
                 "amount": {
                     "value": 10000,
                     "currency": "NGN"
