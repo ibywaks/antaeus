@@ -114,7 +114,7 @@ class AntaeusDal(private val db: Database) {
         }
     }
 
-    fun fetchSubscriptions(isDeleted: Boolean = false, customer: Customer? = null): List<Subscription> {
+    fun fetchSubscriptions(isDeleted: Boolean = false, customer: Customer? = null, plan: SubscriptionPlan? = null): List<Subscription> {
         return transaction(db) {
             val query = SubscriptionTable.selectAll()
 
@@ -124,6 +124,10 @@ class AntaeusDal(private val db: Database) {
 
             if (customer != null) {
                 query.andWhere { SubscriptionTable.customerId.eq(customer.id) }
+            }
+
+            if (plan != null) {
+                query.andWhere { SubscriptionTable.planId.eq(plan.id) }
             }
 
             val results = query.map{ it.toSubscription() }
@@ -144,6 +148,11 @@ class AntaeusDal(private val db: Database) {
 
                 if (updates.isDeleted)
                     it[deletedAt] = Date().time
+
+                if (updates.plan != null) {
+                    val newPlan = updates.plan
+                    it[planId] = newPlan?.id as Int
+                }
             }
         }
 
