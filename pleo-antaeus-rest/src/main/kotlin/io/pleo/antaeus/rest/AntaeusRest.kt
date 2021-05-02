@@ -185,16 +185,10 @@ class AntaeusRest(
                                 customerCurrency = Currency.valueOf(currency)
                             }
 
-                            // @todo get customer plans
-                            val planAmount = Money(
-                                value = BigDecimal(5000),
-                                currency = customerCurrency
-                            )
-
                             try {
                                 val subscriptionPlan = subscriptionPlanService.fetch(planId as Int)
                                 val customer = customerService.create(customerCurrency)
-                                val subscription = subscriptionService.create(subscriptionPlan, customer, planAmount)
+                                val subscription = subscriptionService.create(subscriptionPlan, customer)
 
                                 // @todo create 1st invoice based on subscription date
 

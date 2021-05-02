@@ -85,8 +85,8 @@ class SubscriptionServiceTest {
             currency = Currency.NGN
         )
         val amount2 = Money(
-            value = BigDecimal(5000),
-            currency = Currency.SEK
+            value = BigDecimal(15000),
+            currency = Currency.NGN
         )
         val customer1 = Customer(
             id = 12,
@@ -103,6 +103,14 @@ class SubscriptionServiceTest {
             updatedAt = 1619725878925
         )
 
+        val subscriptionPlan2 = SubscriptionPlan(
+            id = 12,
+            name = "Basic plan",
+            amount = Money(value = BigDecimal(15000), currency = Currency.NGN),
+            createdAt = 1619725878925,
+            updatedAt = 1619725878925
+        )
+
         every { fetchSubscription(404) } returns null
         every { fetchSubscription(200) } returns result1
         every { fetchSubscription(203) } returns result2
@@ -115,7 +123,7 @@ class SubscriptionServiceTest {
         every { updateSubscription(251, subscriptionUpdate1) } returns null
 
         every { createSubscription(subscriptionPlan, amount1, customer1) } returns result1
-        every { createSubscription(subscriptionPlan, amount2, customer1) } returns null
+        every { createSubscription(subscriptionPlan2, amount2, customer1) } returns null
     }
 
     private val subscriptionService = SubscriptionService(dal = dal)
@@ -161,11 +169,6 @@ class SubscriptionServiceTest {
 
     @Test
     fun `will create a subscription for customer`() {
-        val amount = Money(
-            value = BigDecimal(5000),
-            currency = Currency.NGN
-        )
-
         val subscriptionPlan = SubscriptionPlan(
             id = 12,
             name = "Basic plan",
@@ -181,25 +184,20 @@ class SubscriptionServiceTest {
             updatedAt = 1619725878925
         )
 
-        val result = subscriptionService.create(subscriptionPlan, customer, amount)
+        val result = subscriptionService.create(subscriptionPlan, customer)
 
         assertEquals(result.customerId, customer.id)
-        assertEquals(result.amount.value, amount.value)
-        assertEquals(result.amount.currency, amount.currency)
+        assertEquals(result.amount.value, subscriptionPlan.amount.value)
+        assertEquals(result.amount.currency, subscriptionPlan.amount.currency)
         assertNull(result.deletedAt)
     }
 
     @Test
     fun `will throw when unable to create subscription`() {
-        val amount = Money(
-            value = BigDecimal(5000),
-            currency = Currency.SEK
-        )
-
         val subscriptionPlan = SubscriptionPlan(
             id = 12,
             name = "Basic plan",
-            amount = Money(value = BigDecimal(5000), currency = Currency.NGN),
+            amount = Money(value = BigDecimal(15000), currency = Currency.NGN),
             createdAt = 1619725878925,
             updatedAt = 1619725878925
         )
@@ -212,7 +210,7 @@ class SubscriptionServiceTest {
         )
 
         assertThrows<SubscriptionNotCreatedException> {
-            subscriptionService.create(subscriptionPlan, customer, amount)
+            subscriptionService.create(subscriptionPlan, customer)
         }
     }
 }
