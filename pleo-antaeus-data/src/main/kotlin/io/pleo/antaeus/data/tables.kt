@@ -5,8 +5,6 @@
 
 package io.pleo.antaeus.data
 
-import io.pleo.antaeus.data.SubscriptionTable.clientDefault
-import io.pleo.antaeus.data.SubscriptionTable.nullable
 import org.jetbrains.exposed.sql.Table
 import io.pleo.antaeus.models.CustomerStatus
 import io.pleo.antaeus.models.InvoiceStatus
@@ -19,6 +17,9 @@ object InvoiceTable : Table() {
     val subscriptionId = reference("subscription_id", SubscriptionTable.id)
     val status = varchar("status", 10).default(InvoiceStatus.PENDING.toString())
     val paymentRef = varchar("payment_ref", 20).nullable()
+    val description = text("description").nullable()
+    val chargeStartDate = long("charge_start")
+    val chargeEndDate = long("charge_end")
     val createdAt = long("created_at").clientDefault { System.currentTimeMillis() }
     val updatedAt = long("updated_at").clientDefault { System.currentTimeMillis() }
     val deletedAt = long("deleted_at").nullable()

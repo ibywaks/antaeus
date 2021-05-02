@@ -7,6 +7,9 @@ data class Invoice(
     val amount: Money,
     val status: InvoiceStatus,
     val paymentRef: String?,
+    val description: String?,
+    val chargeStartDate: Long,
+    val chargeEndDate: Long,
     val createdAt: Long,
     val updatedAt: Long,
     val deletedAt: Long?

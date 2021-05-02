@@ -4,7 +4,9 @@ data class InvoiceUpdateSchema(
     val amount: Money? = null,
     val paymentRef: String? = null,
     val status: InvoiceStatus? = null,
-    val isDeleted: Boolean = false
+    val isDeleted: Boolean = false,
+    val startDate: Long? = null,
+    val endDate: Long? = null,
 )
 
 data class SubscriptionUpdateSchema(

@@ -8,6 +8,7 @@
 package io.pleo.antaeus.data
 
 import io.pleo.antaeus.models.*
+import io.pleo.antaeus.models.Currency
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.update
@@ -15,7 +16,11 @@ import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.transactions.transaction
-import java.util.Date
+import java.sql.Timestamp
+import java.time.LocalDate
+import java.time.temporal.TemporalAdjuster
+import java.time.temporal.TemporalAdjusters
+import java.util.*
 
 class AntaeusDal(private val db: Database) {
     // Invoice CRUD Methods
@@ -64,19 +69,28 @@ class AntaeusDal(private val db: Database) {
                     it[paymentRef] = updates.paymentRef
 
                 if (updates.isDeleted)
-                    it[deletedAt] = Date().getTime()
+                    it[deletedAt] = Date().time
+
+                if (updates.startDate != null)
+                    it[chargeStartDate] = updates.startDate as Long
+
+                if (updates.endDate != null)
+                    it[chargeEndDate] = updates.endDate as Long
             }
         }
 
         return fetchInvoice(id)
     }
 
-    fun createInvoice(amount: Money, customer: Customer, subscription: Subscription, status: InvoiceStatus = InvoiceStatus.PENDING): Invoice? {
+    fun createInvoice(amount: Money, customer: Customer, subscription: Subscription, description: String? = null, status: InvoiceStatus = InvoiceStatus.PENDING): Invoice? {
         val id = transaction(db) {
             // Insert the invoice and returns its new id.
             InvoiceTable
                 .insert {
                     it[this.value] = amount.value
+                    it[this.description] = description
+                    it[this.chargeStartDate] = Date().time
+                    it[this.chargeEndDate] = Timestamp.valueOf(LocalDate.now().with(TemporalAdjusters.lastDayOfMonth()).toString()).time
                     it[this.currency] = amount.currency.toString()
                     it[this.status] = status.toString()
                     it[this.customerId] = customer.id
