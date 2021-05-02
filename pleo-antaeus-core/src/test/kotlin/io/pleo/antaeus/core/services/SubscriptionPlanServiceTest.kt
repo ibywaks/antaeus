@@ -21,7 +21,7 @@ class SubscriptionPlanServiceTest {
             {
                 "id": 200,
                 "name": "Basic plan",
-                amount: {
+                "amount": {
                     "value": 50,
                     "currency": "USD"
                 },
@@ -35,7 +35,7 @@ class SubscriptionPlanServiceTest {
             {
                 "id": 203,
                 "name": "Standard plan",
-                amount: {
+                "amount": {
                     "value": 50,
                     "currency": "USD"
                 },
@@ -49,7 +49,7 @@ class SubscriptionPlanServiceTest {
             {
                 "id": 205,
                 "name": "Premium plan",
-                amount: {
+                "amount": {
                     "value": 50,
                     "currency": "USD"
                 },
@@ -63,7 +63,7 @@ class SubscriptionPlanServiceTest {
             {
                 "id": 205,
                 "name": "Premium plan",
-                amount: {
+                "amount": {
                     "value": 100,
                     "currency": "USD"
                 },
@@ -77,7 +77,7 @@ class SubscriptionPlanServiceTest {
             {
                 "id": 205,
                 "name": "Zaposs Basic Plan",
-                amount: {
+                "amount": {
                     "value": 50,
                     "currency": "USD"
                 },
@@ -91,7 +91,7 @@ class SubscriptionPlanServiceTest {
             {
                 "id": 205,
                 "name": "Premium plan",
-                amount: {
+                "amount": {
                     "value": 50,
                     "currency": "USD"
                 },
@@ -216,9 +216,9 @@ class SubscriptionPlanServiceTest {
             amount = planAmount
         )
 
-        val result =  subscriptionPlanService.update(200, updates)
+        val result =  subscriptionPlanService.update(205, updates)
 
-        assertEquals(result.id, 200)
+        assertEquals(result.id, 205)
         assertEquals(result.amount.value, planAmount.value)
         assertEquals(result.amount.currency, planAmount.currency)
         assertNull(result.deletedAt)
@@ -230,9 +230,9 @@ class SubscriptionPlanServiceTest {
             name = "Zaposs Basic Plan"
         )
 
-        val result =  subscriptionPlanService.update(200, updates)
+        val result =  subscriptionPlanService.update(205, updates)
 
-        assertEquals(result.id, 200)
+        assertEquals(result.id, 205)
         assertEquals(result.name, "Zaposs Basic Plan")
         assertEquals(result.amount.value, BigDecimal(50))
         assertEquals(result.amount.currency, Currency.USD)
@@ -245,10 +245,10 @@ class SubscriptionPlanServiceTest {
             isDeleted = true
         )
 
-        val result =  subscriptionPlanService.update(200, updates)
+        val result =  subscriptionPlanService.update(205, updates)
 
-        assertEquals(result.id, 200)
-        assertEquals(result.name, "Basic Plan")
+        assertEquals(result.id, 205)
+        assertEquals(result.name, "Premium plan")
         assertEquals(result.amount.value, BigDecimal(50))
         assertEquals(result.amount.currency, Currency.USD)
         assertNotNull(result.deletedAt)
