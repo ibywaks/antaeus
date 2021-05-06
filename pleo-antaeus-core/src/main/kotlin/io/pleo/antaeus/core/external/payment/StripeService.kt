@@ -13,7 +13,7 @@ class StripeService(private val apiKey: String, private val customerService: Cus
 
     override fun charge(invoice: Invoice): Boolean {
         Stripe.apiKey = apiKey
-        return false
+        return true
     }
 
     fun initPaymentSetup(data: PaymentSetupDTO): SetupIntent? {
@@ -33,13 +33,13 @@ class StripeService(private val apiKey: String, private val customerService: Cus
             val paymentMethodTypes = listOf("card")
             val intentParams = mutableMapOf(
                 "customer" to stripeCustomer.id,
-                "payment_method_types" to paymentMethodTypes,
-                "confirm" to true
+                "payment_method_types" to paymentMethodTypes
             )
 
             return SetupIntent.create(intentParams)
         } catch (e: StripeException) {
             // throw custom error & do a log
+            // ${e.code} ${e.message}
             throw Exception("something went wrong")
         }
     }

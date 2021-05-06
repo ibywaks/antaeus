@@ -32,7 +32,7 @@ class StripeServiceTest {
         every { fetchCustomer(200) } returns result1
     }
 
-    private val testApiKey = ""
+    private val testApiKey = "sk_test_51ImgwpBaFgF9u9b7FUhawKwVfN7yldjzfbgRS27zHkmjHK0Ioo3oPcABKvoEAcSgMvNkxesDtagQOWb1wy61V6px00AVJpf1UL"
     private val customerService = CustomerService(dal = dal)
 
     private val stripeService = StripeService(testApiKey, customerService)
