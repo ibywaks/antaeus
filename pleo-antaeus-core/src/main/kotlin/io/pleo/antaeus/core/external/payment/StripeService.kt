@@ -6,9 +6,10 @@ import com.stripe.Stripe
 import com.stripe.model.Customer
 import com.stripe.exception.StripeException
 import com.stripe.model.SetupIntent
+import io.pleo.antaeus.core.services.CustomerService
 import java.lang.Exception
 
-class StripePaymentProvider(private val apiKey: String): PaymentProvider {
+class StripeService(private val apiKey: String, private val customerService: CustomerService): PaymentProvider {
 
     override fun charge(invoice: Invoice): Boolean {
         Stripe.apiKey = apiKey
