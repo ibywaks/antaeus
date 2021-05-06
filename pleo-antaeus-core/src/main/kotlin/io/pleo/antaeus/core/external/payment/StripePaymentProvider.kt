@@ -6,6 +6,7 @@ import com.stripe.Stripe
 import com.stripe.model.Customer
 import com.stripe.exception.StripeException
 import com.stripe.model.SetupIntent
+import java.lang.Exception
 
 class StripePaymentProvider(private val apiKey: String): PaymentProvider {
 
@@ -14,6 +15,31 @@ class StripePaymentProvider(private val apiKey: String): PaymentProvider {
         return false
     }
 
+    fun initPaymentSetup(data: PaymentSetupDTO): SetupIntent? {
+        Stripe.apiKey = apiKey
 
+        try {
+            val stripeCustomer = if (data.customer.stripeId !== null) {
+                Customer.retrieve(data.customer.stripeId)
+            } else {
+                val metadata = mapOf("pleo_id" to data.customer.id)
+                val params = mapOf("metadata" to metadata)
+                Customer.create(params)
+            }
 
+            //@todo customer created event
+
+            val paymentMethodTypes = listOf("card")
+            val intentParams = mutableMapOf(
+                "customer" to stripeCustomer.id,
+                "payment_method_types" to paymentMethodTypes,
+                "confirm" to true
+            )
+
+            return SetupIntent.create(intentParams)
+        } catch (e: StripeException) {
+            // throw custom error & do a log
+            throw Exception("something went wrong")
+        }
+    }
 }
