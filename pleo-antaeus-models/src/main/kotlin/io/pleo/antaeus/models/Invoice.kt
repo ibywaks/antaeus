@@ -6,11 +6,11 @@ data class Invoice(
     val subscriptionId: Int,
     val amount: Money,
     val status: InvoiceStatus,
-    val paymentRef: String?,
-    val description: String?,
+    val paymentRef: String? = null,
+    val description: String? = null,
     val chargeStartDate: Long,
     val chargeEndDate: Long,
     val createdAt: Long,
     val updatedAt: Long,
-    val deletedAt: Long?
+    val deletedAt: Long? = null
 )
