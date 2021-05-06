@@ -7,6 +7,7 @@
 
 package io.pleo.antaeus.data
 
+/* ktlint-disable no-wildcard-imports */
 import io.pleo.antaeus.models.*
 import io.pleo.antaeus.models.Currency
 import org.jetbrains.exposed.sql.Database
@@ -20,6 +21,7 @@ import java.sql.Timestamp
 import java.time.LocalDate
 import java.time.temporal.TemporalAdjusters
 import java.util.*
+/* ktlint-enable no-wildcard-imports */
 
 class AntaeusDal(private val db: Database) {
     // Invoice CRUD Methods

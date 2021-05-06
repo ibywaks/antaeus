@@ -4,6 +4,7 @@
 
 package io.pleo.antaeus.rest
 
+/* ktlint-disable no-wildcard-imports */
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.*
 import io.pleo.antaeus.core.exceptions.*
@@ -11,12 +12,18 @@ import io.pleo.antaeus.core.services.CustomerService
 import io.pleo.antaeus.core.services.InvoiceService
 import io.pleo.antaeus.core.services.SubscriptionPlanService
 import io.pleo.antaeus.core.services.SubscriptionService
-import io.pleo.antaeus.models.*
+import io.pleo.antaeus.models.Money
+import io.pleo.antaeus.models.Currency
+import io.pleo.antaeus.models.InvoiceUpdateSchema
+import io.pleo.antaeus.models.CustomerUpdateSchema
+import io.pleo.antaeus.models.InvoiceStatus
+import io.pleo.antaeus.models.CustomerStatus
 import mu.KotlinLogging
 import java.sql.Timestamp
 import java.time.LocalDate
 import java.time.temporal.TemporalAdjusters
 import java.util.Date
+/* ktlint-enable no-wildcard-imports */
 
 private val logger = KotlinLogging.logger {}
 private val thisFile: () -> Unit = {}

@@ -1,5 +1,6 @@
 package io.pleo.antaeus.core.services
 
+/* ktlint-disable no-wildcard-imports */
 import com.beust.klaxon.Klaxon
 import io.mockk.every
 import io.mockk.mockk
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.math.BigDecimal
+/* ktlint-enable no-wildcard-imports */
 
 class SubscriptionServiceTest {
     private val dal = mockk<AntaeusDal>{

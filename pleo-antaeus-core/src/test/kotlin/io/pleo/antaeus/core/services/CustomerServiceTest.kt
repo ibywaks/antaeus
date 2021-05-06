@@ -12,7 +12,9 @@ import io.pleo.antaeus.core.exceptions.CustomerNotCreatedException
 import io.pleo.antaeus.models.Currency
 import io.pleo.antaeus.models.CustomerStatus
 import io.pleo.antaeus.models.CustomerUpdateSchema
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertEquals
 
 class CustomerServiceTest {
     private val dal = mockk<AntaeusDal> {

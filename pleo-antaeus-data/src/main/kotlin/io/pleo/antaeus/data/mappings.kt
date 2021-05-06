@@ -5,8 +5,10 @@
 
 package io.pleo.antaeus.data
 
+/* ktlint-disable no-wildcard-imports */
 import io.pleo.antaeus.models.*
 import org.jetbrains.exposed.sql.ResultRow
+/* ktlint-enable no-wildcard-imports */
 
 fun ResultRow.toInvoice(): Invoice = Invoice(
     id = this[InvoiceTable.id],

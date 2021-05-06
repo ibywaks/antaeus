@@ -20,7 +20,7 @@ allprojects {
             target("src/**/*.kt", "src/**/*.kts")
             ktlint()   // has its own section below
             ktfmt()    // has its own section below
-            prettier() // has its own section below
+//            prettier() // has its own section below
             licenseHeader("/* (C)$YEAR */") // or licenseHeaderFile
         }
     }

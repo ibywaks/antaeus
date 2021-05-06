@@ -6,5 +6,6 @@ data class Customer(
     val status: CustomerStatus = CustomerStatus.ACTIVE,
     val createdAt: Long,
     val updatedAt: Long,
-    val deletedAt: Long? = null
+    val deletedAt: Long? = null,
+    val stripeId: String? = null
 )
