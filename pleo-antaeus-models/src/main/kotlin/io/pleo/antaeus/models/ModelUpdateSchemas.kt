@@ -17,6 +17,8 @@ data class SubscriptionUpdateSchema(
 
 data class CustomerUpdateSchema(
     val status: CustomerStatus? = null,
+    val stripeId: String? = null,
+    val defaultStripePaymentMethodId: String? = null,
     val isDeleted: Boolean = false
 )
 

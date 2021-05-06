@@ -7,5 +7,6 @@ data class Customer(
     val createdAt: Long,
     val updatedAt: Long,
     val deletedAt: Long? = null,
-    val stripeId: String? = null
+    val stripeId: String? = null,
+    val defaultStripePaymentMethodId: String? = null
 )

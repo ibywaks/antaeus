@@ -8,6 +8,7 @@ package io.pleo.antaeus.rest
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.*
 import io.pleo.antaeus.core.exceptions.*
+import io.pleo.antaeus.core.external.payment.StripeService
 import io.pleo.antaeus.core.services.CustomerService
 import io.pleo.antaeus.core.services.InvoiceService
 import io.pleo.antaeus.core.services.SubscriptionPlanService
@@ -32,7 +33,8 @@ class AntaeusRest(
     private val invoiceService: InvoiceService,
     private val customerService: CustomerService,
     private val subscriptionService: SubscriptionService,
-    private val subscriptionPlanService: SubscriptionPlanService
+    private val subscriptionPlanService: SubscriptionPlanService,
+    private val stripeService: StripeService
 ) : Runnable {
 
     override fun run() {
@@ -288,6 +290,23 @@ class AntaeusRest(
                         }
                     }
                 }
+            }
+            path("webhooks") {
+               post("stripe") {
+                   val secretSignature = it.header("stripe-signature")
+                   val requestBody = it.body()
+
+                   try {
+                       if (secretSignature != null) {
+                           val event = stripeService.generateEvent(requestBody, secretSignature)
+
+                           stripeService.handleWebhookEvent(event)
+                           it.status(200)
+                       }
+                   } catch (e: Exception) {
+                       it.status(400)
+                   }
+               }
             }
         }
     }

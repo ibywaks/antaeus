@@ -8,6 +8,8 @@
 package io.pleo.antaeus.app
 
 import getPaymentProvider
+import io.github.cdimascio.dotenv.dotenv
+import io.pleo.antaeus.core.external.payment.StripeService
 import io.pleo.antaeus.core.services.BillingService
 import io.pleo.antaeus.core.services.InvoiceService
 import io.pleo.antaeus.core.services.CustomerService
@@ -51,6 +53,9 @@ fun main() {
             }
         }
 
+    // Set up dotenv
+    val dotenv = dotenv()
+
     // Set up data access layer.
     val dal = AntaeusDal(db = db)
 
@@ -69,11 +74,17 @@ fun main() {
     // This is _your_ billing service to be included where you see fit
     val billingService = BillingService(paymentProvider = paymentProvider)
 
+    // Setting up the stripe service
+    // @todo move this to a config service
+    val stripeAPISecret = dotenv["STRIPE_SECRET_KEY"]
+    val stripeService = StripeService(stripeAPISecret, customerService, invoiceService)
+
     // Create REST web service
     AntaeusRest(
         invoiceService = invoiceService,
         customerService = customerService,
         subscriptionService = subscriptionService,
-        subscriptionPlanService = subscriptionPlanService
+        subscriptionPlanService = subscriptionPlanService,
+        stripeService = stripeService
     ).run()
 }
