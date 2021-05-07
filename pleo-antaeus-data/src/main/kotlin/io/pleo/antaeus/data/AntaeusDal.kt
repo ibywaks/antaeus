@@ -231,6 +231,12 @@ class AntaeusDal(private val db: Database) {
 
                 if (updates.isDeleted)
                     it[deletedAt] = Date().time
+
+                if (updates.stripeId != null)
+                    it[stripeId] = updates.stripeId.toString()
+
+                if (updates.defaultStripePaymentMethodId != null)
+                    it[defaultStripePaymentMethodId] = updates.defaultStripePaymentMethodId.toString()
             }
         }
 

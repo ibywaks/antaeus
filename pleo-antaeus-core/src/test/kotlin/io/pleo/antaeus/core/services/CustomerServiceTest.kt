@@ -25,6 +25,7 @@ class CustomerServiceTest {
                 "currency": "NGN",
                 "status": "ACTIVE",
                 "stripeId": null,
+                "defaultStripePaymentMethodId": null,
                 "createdAt": 1619725878925,
                 "updatedAt": 1619725878925,
                 "deletedAt": null
@@ -38,6 +39,7 @@ class CustomerServiceTest {
                 "currency": "NGN",
                 "status": "ACTIVE",
                 "stripeId": null,
+                "defaultStripePaymentMethodId": null,
                 "createdAt": 1619725878925,
                 "updatedAt": 1619725878925,
                 "deletedAt": 1619725878925
@@ -50,6 +52,7 @@ class CustomerServiceTest {
                 "currency": "NGN",
                 "status": "INACTIVE",
                 "stripeId": null,
+                "defaultStripePaymentMethodId": null,
                 "createdAt": 1619725878925,
                 "updatedAt": 1619725878925,
                 "deletedAt": null
@@ -62,6 +65,7 @@ class CustomerServiceTest {
                 "currency": "NGN",
                 "status": "INACTIVE",
                 "stripeId": null,
+                "defaultStripePaymentMethodId": null,
                 "createdAt": 1619725878925,
                 "updatedAt": 1619725878925,
                 "deletedAt": null
@@ -74,6 +78,7 @@ class CustomerServiceTest {
                 "currency": "NGN",
                 "status": "ACTIVE",
                 "stripeId": null,
+                "defaultStripePaymentMethodId": null,
                 "createdAt": 1619725878925,
                 "updatedAt": 1619725878925,
                 "deletedAt": 1619725878925

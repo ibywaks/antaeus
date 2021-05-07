@@ -32,6 +32,8 @@ object CustomerTable : Table() {
     val id = integer("id").autoIncrement().primaryKey()
     val currency = varchar("currency", 3)
     val status = varchar("status", 10).default(CustomerStatus.ACTIVE.toString())
+    val stripeId = varchar("stripe_id", 100)
+    val defaultStripePaymentMethodId = varchar("default_stripe_payment_method", 100)
     val createdAt = long("created_at").clientDefault { System.currentTimeMillis() }
     val updatedAt = long("updated_at").clientDefault { System.currentTimeMillis() }
     val deletedAt = long("deleted_at").nullable()
