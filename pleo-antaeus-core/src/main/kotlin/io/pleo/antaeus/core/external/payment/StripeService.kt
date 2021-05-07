@@ -3,6 +3,7 @@ package io.pleo.antaeus.core.external.payment
 import io.pleo.antaeus.core.external.PaymentProvider
 import io.pleo.antaeus.models.Invoice
 import com.stripe.Stripe
+import com.stripe.exception.CardException
 import com.stripe.exception.SignatureVerificationException
 import com.stripe.model.Customer
 import com.stripe.exception.StripeException
@@ -10,23 +11,57 @@ import com.stripe.model.Event
 import com.stripe.model.PaymentIntent
 import com.stripe.model.SetupIntent
 import com.stripe.net.Webhook
-import io.github.cdimascio.dotenv.dotenv
 import io.pleo.antaeus.core.services.CustomerService
 import io.pleo.antaeus.core.services.InvoiceService
 import io.pleo.antaeus.models.CustomerUpdateSchema
 import io.pleo.antaeus.models.InvoiceStatus
 import io.pleo.antaeus.models.InvoiceUpdateSchema
 import java.lang.Exception
+import java.math.BigDecimal
 
 class StripeService(
     private val apiKey: String,
+    private val webhookSecretKey: String,
     private val customerService: CustomerService,
     private val invoiceService: InvoiceService
 ): PaymentProvider {
 
     override fun charge(invoice: Invoice): Boolean {
         Stripe.apiKey = apiKey
-        return true
+
+        try {
+            val pleoCustomerId = invoice.customerId
+            val pleoCustomer = customerService.fetch(pleoCustomerId)
+
+            if (pleoCustomer.defaultStripePaymentMethodId == null) {
+                // trigger some event to notify customer to setup payment
+                // throw a custom exception
+                // throw Exception("no available payment method")
+                return false
+            }
+
+            val invoiceAmount = invoice.amount.value * BigDecimal(100)
+            val paymentPayload = mapOf(
+                "amount" to invoiceAmount,
+                "currency" to invoice.amount.currency,
+                "confirm" to true,
+                "customer" to pleoCustomer.stripeId,
+                "payment_method" to pleoCustomer.defaultStripePaymentMethodId,
+                "off_session" to true,
+                "metadata" to mapOf("invoice_id" to invoice.id)
+            )
+
+            createPaymentIntent(paymentPayload)
+
+            return true
+        } catch (e: CardException) {
+            // log issue
+            return false
+        }
+    }
+
+    fun createPaymentIntent(payload: Map<String, Any?>) {
+        PaymentIntent.create(payload)
     }
 
     fun initPaymentSetup(data: PaymentSetupDTO): SetupIntent? {
@@ -59,11 +94,8 @@ class StripeService(
 
     fun generateEvent(payload: String, sigHeader: String): Event {
         try {
-            val dotenv = dotenv()
-            val webhookSecret = dotenv["STRIPE_WEBHOOK_SECRET"]
-
             Stripe.apiKey = apiKey
-            return Webhook.constructEvent(payload, sigHeader, webhookSecret)
+            return Webhook.constructEvent(payload, sigHeader, webhookSecretKey)
         } catch (e: SignatureVerificationException) {
             // log and return a custom exception
             throw Exception("something went wrong")
@@ -92,7 +124,7 @@ class StripeService(
                 }
 
                 val update = CustomerUpdateSchema(stripeId = stripeCustomerId)
-                customerService.update(pleoCustomerId as Int, update)
+                customerService.update(pleoCustomerId.toInt(), update)
             }
             "payment_intent.succeeded" -> {
                 val paymentIntentData = stripeObject as PaymentIntent
@@ -110,7 +142,7 @@ class StripeService(
                     paymentRef = paymentIntentId,
                     status = InvoiceStatus.PAID
                 )
-                invoiceService.update(pleoInvoiceId as Int, invoiceUpdate)
+                invoiceService.update(pleoInvoiceId.toInt(), invoiceUpdate)
             }
             "payment_intent.processing" -> {
                 val paymentIntentData = stripeObject as PaymentIntent
@@ -128,7 +160,7 @@ class StripeService(
                     paymentRef = paymentIntentId,
                     status = InvoiceStatus.PROCESSING
                 )
-                invoiceService.update(pleoInvoiceId as Int, invoiceUpdate)
+                invoiceService.update(pleoInvoiceId.toInt(), invoiceUpdate)
             }
             "setup_intent.succeeded" -> {
                 val setupIntentData = stripeObject as SetupIntent
@@ -152,7 +184,7 @@ class StripeService(
                 }
 
                 val update = CustomerUpdateSchema(defaultStripePaymentMethodId = paymentMethodId)
-                customerService.update(pleoCustomerId as Int, update)
+                customerService.update(pleoCustomerId.toInt(), update)
             }
         }
     }

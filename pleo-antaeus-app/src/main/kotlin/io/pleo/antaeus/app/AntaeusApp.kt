@@ -77,7 +77,13 @@ fun main() {
     // Setting up the stripe service
     // @todo move this to a config service
     val stripeAPISecret = dotenv["STRIPE_SECRET_KEY"]
-    val stripeService = StripeService(stripeAPISecret, customerService, invoiceService)
+    val webhookSecretKey = dotenv["STRIPE_WEBHOOK_SECRET"]
+    val stripeService = StripeService(
+        stripeAPISecret,
+        webhookSecretKey,
+        customerService,
+        invoiceService
+    )
 
     // Create REST web service
     AntaeusRest(
