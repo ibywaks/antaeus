@@ -78,6 +78,12 @@ class AntaeusDal(private val db: Database) {
 
                 if (updates.endDate != null)
                     it[chargeEndDate] = updates.endDate as Long
+
+                if (updates.numberOfFailedCharges != null)
+                    it[numberOfFailedCharges] = updates.numberOfFailedCharges
+
+                if (updates.lastFailedCharge != null)
+                    it[lastFailedCharge] = updates.lastFailedCharge
             }
         }
 

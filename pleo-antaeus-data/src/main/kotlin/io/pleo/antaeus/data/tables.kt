@@ -8,6 +8,7 @@ package io.pleo.antaeus.data
 import org.jetbrains.exposed.sql.Table
 import io.pleo.antaeus.models.CustomerStatus
 import io.pleo.antaeus.models.InvoiceStatus
+import org.jetbrains.exposed.sql.intParam
 
 object InvoiceTable : Table() {
     val id = integer("id").autoIncrement().primaryKey()
@@ -20,6 +21,8 @@ object InvoiceTable : Table() {
     val description = text("description").nullable()
     val chargeStartDate = long("charge_start")
     val chargeEndDate = long("charge_end")
+    val numberOfFailedCharges = integer("number_of_failed_charges").nullable()
+    val lastFailedCharge = long("last_failed_charge").nullable()
     val createdAt = long("created_at").clientDefault { System.currentTimeMillis() }
     val updatedAt = long("updated_at").clientDefault { System.currentTimeMillis() }
     val deletedAt = long("deleted_at").nullable()
