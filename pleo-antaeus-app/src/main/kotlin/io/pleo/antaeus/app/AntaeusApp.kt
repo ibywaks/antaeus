@@ -7,14 +7,11 @@
 
 package io.pleo.antaeus.app
 
+/* ktlint-disable no-wildcard-imports */
 import getPaymentProvider
 import io.github.cdimascio.dotenv.dotenv
 import io.pleo.antaeus.core.external.payment.StripeService
-import io.pleo.antaeus.core.services.BillingService
-import io.pleo.antaeus.core.services.InvoiceService
-import io.pleo.antaeus.core.services.CustomerService
-import io.pleo.antaeus.core.services.SubscriptionService
-import io.pleo.antaeus.core.services.SubscriptionPlanService
+import io.pleo.antaeus.core.services.*
 import io.pleo.antaeus.data.SubscriptionPlanTable
 import io.pleo.antaeus.data.SubscriptionTable
 import io.pleo.antaeus.data.CustomerTable
@@ -30,6 +27,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import setupInitialData
 import java.io.File
 import java.sql.Connection
+/* ktlint-enable no-wildcard-imports */
 
 fun main() {
     // The tables to create in the database.
@@ -54,7 +52,9 @@ fun main() {
         }
 
     // Set up dotenv
-    val dotenv = dotenv()
+    val dotenv = dotenv{
+        directory = "../"
+    }
 
     // Set up data access layer.
     val dal = AntaeusDal(db = db)

@@ -18,6 +18,7 @@ import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.sql.Timestamp
+import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.temporal.TemporalAdjusters
 import java.util.*
@@ -99,7 +100,11 @@ class AntaeusDal(private val db: Database) {
                     it[this.value] = amount.value
                     it[this.description] = description
                     it[this.chargeStartDate] = startDate ?: Date().time
-                    it[this.chargeEndDate] = endDate ?: Timestamp.valueOf(LocalDate.now().with(TemporalAdjusters.lastDayOfMonth()).toString()).time
+
+                    val defaultEndDate = LocalDate.now().with(TemporalAdjusters.lastDayOfMonth())
+                    val defaultEndDateString = SimpleDateFormat("yyyy-mm-dd").parse(defaultEndDate.toString())
+
+                    it[this.chargeEndDate] = endDate ?: defaultEndDateString.time
                     it[this.currency] = amount.currency.toString()
                     it[this.status] = status.toString()
                     it[this.customerId] = customer.id
