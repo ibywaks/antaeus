@@ -1,7 +1,6 @@
 package io.pleo.antaeus.core.external.payment
 
 import io.pleo.antaeus.core.external.PaymentProvider
-import io.pleo.antaeus.models.Invoice
 import com.stripe.Stripe
 import com.stripe.exception.CardException
 import com.stripe.exception.SignatureVerificationException
@@ -13,9 +12,7 @@ import com.stripe.model.SetupIntent
 import com.stripe.net.Webhook
 import io.pleo.antaeus.core.services.CustomerService
 import io.pleo.antaeus.core.services.InvoiceService
-import io.pleo.antaeus.models.CustomerUpdateSchema
-import io.pleo.antaeus.models.InvoiceStatus
-import io.pleo.antaeus.models.InvoiceUpdateSchema
+import io.pleo.antaeus.models.*
 import java.lang.Exception
 import java.math.BigDecimal
 
@@ -142,7 +139,12 @@ class StripeService(
                     paymentRef = paymentIntentId,
                     status = InvoiceStatus.PAID
                 )
-                invoiceService.update(pleoInvoiceId.toInt(), invoiceUpdate)
+                val invoice = invoiceService.update(pleoInvoiceId.toInt(), invoiceUpdate)
+
+                val customerUpdate = CustomerUpdateSchema(
+                    status = CustomerStatus.ACTIVE
+                )
+                customerService.update(invoice.customerId, customerUpdate)
             }
             "payment_intent.processing" -> {
                 val paymentIntentData = stripeObject as PaymentIntent

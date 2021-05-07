@@ -10,6 +10,8 @@ data class Invoice(
     val description: String? = null,
     val chargeStartDate: Long,
     val chargeEndDate: Long,
+    val numberOfFailedCharges: Int? = null,
+    val lastFailedCharge: Long? = null,
     val createdAt: Long,
     val updatedAt: Long,
     val deletedAt: Long? = null
