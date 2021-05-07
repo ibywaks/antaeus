@@ -85,6 +85,12 @@ fun main() {
         invoiceService
     )
 
+    // Cron service
+    CronScheduleService(
+        invoiceService = invoiceService,
+        stripeService = stripeService
+    ).run()
+
     // Create REST web service
     AntaeusRest(
         invoiceService = invoiceService,
