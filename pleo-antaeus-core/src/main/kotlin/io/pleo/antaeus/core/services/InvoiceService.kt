@@ -17,8 +17,8 @@ import io.pleo.antaeus.models.InvoiceUpdateSchema
 import java.util.concurrent.TimeUnit
 
 class InvoiceService(private val dal: AntaeusDal) {
-    fun fetchAll(isDeleted: Boolean = false, status: InvoiceStatus? = null): List<Invoice> {
-        return dal.fetchInvoices(isDeleted, status)
+    fun fetchAll(isDeleted: Boolean = false, status: InvoiceStatus? = null, customer: Customer? = null): List<Invoice> {
+        return dal.fetchInvoices(isDeleted, status, customer)
     }
 
     fun fetch(id: Int): Invoice {

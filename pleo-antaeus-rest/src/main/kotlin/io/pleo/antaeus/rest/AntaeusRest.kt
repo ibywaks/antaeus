@@ -9,21 +9,20 @@ import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.*
 import io.pleo.antaeus.core.exceptions.*
 import io.pleo.antaeus.core.external.payment.StripeService
+import io.pleo.antaeus.core.helpers.calculatePartialPlanAmount
 import io.pleo.antaeus.core.services.CustomerService
 import io.pleo.antaeus.core.services.InvoiceService
 import io.pleo.antaeus.core.services.SubscriptionPlanService
 import io.pleo.antaeus.core.services.SubscriptionService
-import io.pleo.antaeus.models.Money
-import io.pleo.antaeus.models.Currency
-import io.pleo.antaeus.models.InvoiceUpdateSchema
-import io.pleo.antaeus.models.CustomerUpdateSchema
-import io.pleo.antaeus.models.InvoiceStatus
-import io.pleo.antaeus.models.CustomerStatus
+import io.pleo.antaeus.models.*
 import mu.KotlinLogging
 import java.sql.Timestamp
+import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.temporal.TemporalAdjusters
 import java.util.Date
+import java.util.concurrent.TimeUnit
+
 /* ktlint-enable no-wildcard-imports */
 
 private val logger = KotlinLogging.logger {}
@@ -204,7 +203,8 @@ class AntaeusRest(
 
                                 // @todo create 1st invoice based on subscription date
                                 val startDate = Date().time
-                                val endDate = Timestamp.valueOf(LocalDate.now().with(TemporalAdjusters.lastDayOfMonth()).toString()).time
+                                val end = LocalDate.now().with(TemporalAdjusters.lastDayOfMonth())
+                                val endDate = (SimpleDateFormat("yyyy-mm-dd").parse(end.toString())).time
 
                                 invoiceService.create(customer, subscription, null, startDate, endDate)
 
@@ -246,6 +246,26 @@ class AntaeusRest(
                                 it.status(400).result(e.message ?: "unable to update customer $id")
                             }
                         }
+
+                        //URL: /rest/v1/customer/{:id}
+                        delete(":id") {
+                            val id = it.pathParam("id").toInt()
+
+                            val customer = customerService.update(id, CustomerUpdateSchema(isDeleted = true))
+                            val activeInvoice = (invoiceService.fetchAll(false, InvoiceStatus.PENDING, customer))[0]
+
+                            subscriptionService.update(activeInvoice.subscriptionId, SubscriptionUpdateSchema(isDeleted = true))
+
+                            val end = LocalDate.now().with(TemporalAdjusters.lastDayOfMonth())
+                            val endDate = (SimpleDateFormat("yyyy-mm-dd").parse(end.toString())).time
+
+                            val diff = endDate - activeInvoice.chargeStartDate
+                            val days = TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS)
+
+                            val proratedAmount = calculatePartialPlanAmount(activeInvoice.amount, days)
+
+                            invoiceService.update(activeInvoice.id, InvoiceUpdateSchema( endDate = endDate, amount = proratedAmount ))
+                        }
                     }
 
                     path("subscriptions") {
@@ -279,9 +299,9 @@ class AntaeusRest(
                             }
 
                             it.json(
-                                invoiceService.update(
+                                subscriptionService.update(
                                     id,
-                                    InvoiceUpdateSchema(
+                                    SubscriptionUpdateSchema(
                                         amount = newAmount,
                                         isDeleted = isDeleted as Boolean
                                     )

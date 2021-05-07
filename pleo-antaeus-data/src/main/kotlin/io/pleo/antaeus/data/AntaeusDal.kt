@@ -37,7 +37,7 @@ class AntaeusDal(private val db: Database) {
         }
     }
 
-    fun fetchInvoices(isDeleted: Boolean = false, status: InvoiceStatus?): List<Invoice> {
+    fun fetchInvoices(isDeleted: Boolean = false, status: InvoiceStatus?, customer: Customer?): List<Invoice> {
         return transaction(db) {
             val query = InvoiceTable.selectAll()
 
@@ -46,6 +46,10 @@ class AntaeusDal(private val db: Database) {
 
             if (!isDeleted) {
                 query.andWhere{ InvoiceTable.deletedAt.isNull() }
+            }
+
+            if (customer != null) {
+                query.andWhere{ InvoiceTable.customerId.eq(customer.id) }
             }
 
             val results = query.map { it.toInvoice() }

@@ -182,9 +182,9 @@ class InvoiceServiceTest {
         every { fetchInvoice(203) } returns result2
         every { fetchInvoice(205) } returns result3
 
-        every { fetchInvoices(false, null) } returns listOf((result1 as Invoice), (result3 as Invoice))
-        every { fetchInvoices(true, null) } returns listOf((result2 as Invoice))
-        every { fetchInvoices(false, InvoiceStatus.PAID) } returns listOf(result3)
+        every { fetchInvoices(false, null, null) } returns listOf((result1 as Invoice), (result3 as Invoice))
+        every { fetchInvoices(true, null, null) } returns listOf((result2 as Invoice))
+        every { fetchInvoices(false, InvoiceStatus.PAID, null) } returns listOf(result3)
 
         
         every { updateInvoice(200, invoiceUpdates1) } returns result4

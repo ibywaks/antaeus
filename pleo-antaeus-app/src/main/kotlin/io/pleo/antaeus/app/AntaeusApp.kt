@@ -88,6 +88,7 @@ fun main() {
     // Cron service
     CronScheduleService(
         invoiceService = invoiceService,
+        customerService = customerService,
         stripeService = stripeService
     ).run()
 
