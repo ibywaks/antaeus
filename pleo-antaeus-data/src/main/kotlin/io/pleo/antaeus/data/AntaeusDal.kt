@@ -220,6 +220,8 @@ class AntaeusDal(private val db: Database) {
 
             if (!isDeleted) {
                 query.andWhere{ CustomerTable.deletedAt.isNull() }
+            } else {
+                query.andWhere{ CustomerTable.deletedAt.isNotNull() }
             }
                 
             val results = query.map { it.toCustomer() }
@@ -240,6 +242,9 @@ class AntaeusDal(private val db: Database) {
 
                 if (updates.stripeId != null)
                     it[stripeId] = updates.stripeId.toString()
+
+                if (updates.currency != null)
+                    it[currency] = updates.currency.toString()
 
                 if (updates.defaultStripePaymentMethodId != null)
                     it[defaultStripePaymentMethodId] = updates.defaultStripePaymentMethodId.toString()

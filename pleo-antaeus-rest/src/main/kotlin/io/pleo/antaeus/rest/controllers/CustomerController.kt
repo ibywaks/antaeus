@@ -24,7 +24,7 @@ class CustomerController(
     private val subscriptionPlanService: SubscriptionPlanService
 ) {
     fun list(ctx: Context) {
-        val isDeleted = ctx.queryParam("is_deleted")?.toBoolean()
+        val isDeleted = ctx.queryParam("is_deleted") == "true"
         val status = ctx.queryParam("status")
 
         var selectedStatus: CustomerStatus? = null
@@ -33,7 +33,7 @@ class CustomerController(
             selectedStatus = CustomerStatus.valueOf(status.toUpperCase())
         }
 
-        ctx.json(customerService.fetchAll(isDeleted as Boolean, selectedStatus))
+        ctx.json(customerService.fetchAll(isDeleted, selectedStatus))
     }
 
     fun index(ctx: Context) {
@@ -76,11 +76,17 @@ class CustomerController(
         val id = ctx.pathParam("id").toInt()
 
         val status = ctx.formParam("status")
-        val isDeleted = ctx.formParam("is_deleted")?.toBoolean()
+        val currency = ctx.formParam("currency")
 
         var newStatus : CustomerStatus? = null
+        var selectedCurrency: Currency? = null
+
         if (status != null) {
             newStatus = CustomerStatus.valueOf(status.toUpperCase())
+        }
+
+        if (currency != null) {
+            selectedCurrency = Currency.valueOf(currency.toUpperCase())
         }
 
         try {
@@ -89,7 +95,7 @@ class CustomerController(
                     id,
                     CustomerUpdateSchema(
                         status = newStatus,
-                        isDeleted = isDeleted as Boolean
+                        currency = selectedCurrency
                     )
                 )
             )

@@ -198,7 +198,6 @@ class AntaeusRest(
                             }
                             .pathParam<Int>("id") { it.description("Customer ID") }
                             .formParam<String>("status", false)
-                            .formParam<Boolean>("is_deleted", false)
                             .formParam<String>("currency", false)
                             .json<Customer>("200")
                         put(":id", documented(editCustomerDoc) {
