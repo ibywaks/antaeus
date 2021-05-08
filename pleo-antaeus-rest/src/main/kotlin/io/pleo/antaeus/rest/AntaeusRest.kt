@@ -201,7 +201,6 @@ class AntaeusRest(
                                 val customer = customerService.create(customerCurrency)
                                 val subscription = subscriptionService.create(subscriptionPlan, customer)
 
-                                // @todo create 1st invoice based on subscription date
                                 val startDate = Date().time
                                 val end = LocalDate.now().with(TemporalAdjusters.lastDayOfMonth())
                                 val endDate = (SimpleDateFormat("yyyy-mm-dd").parse(end.toString())).time

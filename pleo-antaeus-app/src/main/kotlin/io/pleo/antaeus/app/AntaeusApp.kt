@@ -68,7 +68,6 @@ fun main() {
     val subscriptionPlanService = SubscriptionPlanService(dal = dal)
 
     // Setting up the stripe service
-    // @todo move this to a config service
     val stripeAPISecret = dotenv["STRIPE_SECRET_KEY"]
     val webhookSecretKey = dotenv["STRIPE_WEBHOOK_SECRET"]
     val stripeService = StripeService(
