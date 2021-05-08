@@ -1,5 +1,6 @@
 package io.pleo.antaeus.core.services
 
+import io.pleo.antaeus.core.exceptions.NoPaymentMethodException
 import io.pleo.antaeus.core.external.PaymentProvider
 import io.pleo.antaeus.core.external.payment.ChargePayload
 import io.pleo.antaeus.core.external.payment.PaymentSetupDTO
@@ -23,8 +24,7 @@ class BillingService(
 
         if (customer.defaultStripePaymentMethodId == null) {
             // trigger some event to notify customer to setup payment
-            // throw a custom exception
-             throw Exception("no available payment method")
+             throw NoPaymentMethodException(invoice.customerId)
         }
 
         val invoiceAmount = invoice.amount.value * BigDecimal(100)
@@ -47,6 +47,10 @@ class BillingService(
         )
 
         return invoiceService.update(invoice.id, update)
+    }
+
+    fun chargeSingleInvoice(invoice: Invoice) {
+        chargeInvoice(invoice)
     }
 
     fun chargeAllActiveInvoices() {
