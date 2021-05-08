@@ -8,7 +8,6 @@
 package io.pleo.antaeus.app
 
 /* ktlint-disable no-wildcard-imports */
-import getPaymentProvider
 import io.github.cdimascio.dotenv.dotenv
 import io.pleo.antaeus.core.external.payment.StripeService
 import io.pleo.antaeus.core.services.*
@@ -62,17 +61,11 @@ fun main() {
     // Insert example data in the database.
     setupInitialData(dal = dal)
 
-    // Get third parties
-    val paymentProvider = getPaymentProvider()
-
     // Create core services
     val invoiceService = InvoiceService(dal = dal)
     val customerService = CustomerService(dal = dal)
     val subscriptionService = SubscriptionService(dal = dal)
     val subscriptionPlanService = SubscriptionPlanService(dal = dal)
-
-    // This is _your_ billing service to be included where you see fit
-    val billingService = BillingService(paymentProvider = paymentProvider)
 
     // Setting up the stripe service
     // @todo move this to a config service
@@ -85,11 +78,16 @@ fun main() {
         invoiceService
     )
 
+    // This is _your_ billing service to be included where you see fit
+    val billingService = BillingService(
+        paymentProvider = stripeService,
+        invoiceService = invoiceService,
+        customerService = customerService
+    )
+
     // Cron service
     CronScheduleService(
-        invoiceService = invoiceService,
-        customerService = customerService,
-        stripeService = stripeService
+        billingService = billingService
     ).run()
 
     // Create REST web service

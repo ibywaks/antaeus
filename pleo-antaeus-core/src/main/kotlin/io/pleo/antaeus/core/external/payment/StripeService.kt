@@ -4,17 +4,18 @@ import io.pleo.antaeus.core.external.PaymentProvider
 import com.stripe.Stripe
 import com.stripe.exception.CardException
 import com.stripe.exception.SignatureVerificationException
+import com.stripe.param.PaymentIntentCreateParams
 import com.stripe.model.Customer
 import com.stripe.exception.StripeException
 import com.stripe.model.Event
 import com.stripe.model.PaymentIntent
 import com.stripe.model.SetupIntent
 import com.stripe.net.Webhook
+import com.stripe.param.SetupIntentCreateParams
 import io.pleo.antaeus.core.services.CustomerService
 import io.pleo.antaeus.core.services.InvoiceService
 import io.pleo.antaeus.models.*
 import java.lang.Exception
-import java.math.BigDecimal
 
 class StripeService(
     private val apiKey: String,
@@ -23,32 +24,20 @@ class StripeService(
     private val invoiceService: InvoiceService
 ): PaymentProvider {
 
-    override fun charge(invoice: Invoice): Boolean {
+    override fun charge(payload: ChargePayload): Boolean {
         Stripe.apiKey = apiKey
 
         try {
-            val pleoCustomerId = invoice.customerId
-            val pleoCustomer = customerService.fetch(pleoCustomerId)
+            val params = PaymentIntentCreateParams.builder()
+                .setPaymentMethod(payload.paymentMethod)
+                .setAmount(payload.amount)
+                .setCurrency(payload.currency.toString())
+                .setCustomer(payload.customerReference)
+                .putMetadata("invoice_id", payload.invoiceId)
+                .setConfirm(true)
+                .setOffSession(true).build()
 
-            if (pleoCustomer.defaultStripePaymentMethodId == null) {
-                // trigger some event to notify customer to setup payment
-                // throw a custom exception
-                // throw Exception("no available payment method")
-                return false
-            }
-
-            val invoiceAmount = invoice.amount.value * BigDecimal(100)
-            val paymentPayload = mapOf(
-                "amount" to invoiceAmount,
-                "currency" to invoice.amount.currency,
-                "confirm" to true,
-                "customer" to pleoCustomer.stripeId,
-                "payment_method" to pleoCustomer.defaultStripePaymentMethodId,
-                "off_session" to true,
-                "metadata" to mapOf("invoice_id" to invoice.id)
-            )
-
-            createPaymentIntent(paymentPayload)
+            createPaymentIntent(params)
 
             return true
         } catch (e: CardException) {
@@ -57,11 +46,11 @@ class StripeService(
         }
     }
 
-    fun createPaymentIntent(payload: Map<String, Any?>) {
-        PaymentIntent.create(payload)
+    fun createPaymentIntent(params: PaymentIntentCreateParams) {
+        PaymentIntent.create(params)
     }
 
-    fun initPaymentSetup(data: PaymentSetupDTO): SetupIntent? {
+    override fun initPaymentSetup(data: PaymentSetupDTO): PaymentSetupObject {
         Stripe.apiKey = apiKey
 
         try {
@@ -73,15 +62,14 @@ class StripeService(
                 Customer.create(params)
             }
 
-            //@todo customer created event
+            val intentParams = SetupIntentCreateParams.builder()
+                .setCustomer(stripeCustomer.id)
+                .addPaymentMethodType("card")
+                .build()
 
-            val paymentMethodTypes = listOf("card")
-            val intentParams = mutableMapOf(
-                "customer" to stripeCustomer.id,
-                "payment_method_types" to paymentMethodTypes
-            )
+            val intent = SetupIntent.create(intentParams)
 
-            return SetupIntent.create(intentParams)
+            return PaymentSetupObject(reference = intent.id, secretKey = intent.clientSecret)
         } catch (e: StripeException) {
             // throw custom error & do a log
             // ${e.code} ${e.message}
