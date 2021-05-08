@@ -99,7 +99,7 @@ class AntaeusRest(
                         val listInvoiceDoc = document()
                             .operation {
                                 it.description("Invoice List")
-                                it.addTagsItem("invoice")
+                                it.addTagsItem("invoices")
                             }
                             .queryParam<Boolean>("is_deleted") { it.description("Filters invoice list based on deletedAt attribute") }
                             .queryParam<String>("status") { it.description("Filters invoice list based on status") }
@@ -110,7 +110,7 @@ class AntaeusRest(
                         val fetchInvoiceDoc = document()
                             .operation {
                                 it.description("Invoice Fetch")
-                                it.addTagsItem("invoice")
+                                it.addTagsItem("invoices")
                             }
                             .pathParam<Int>("id") { it.description("Invoice ID") }
                             .json<Invoice>("200")
@@ -122,7 +122,7 @@ class AntaeusRest(
                         val createInvoiceDoc = document()
                             .operation {
                                 it.description("Invoice Create")
-                                it.addTagsItem("invoice")
+                                it.addTagsItem("invoices")
                             }
                             .formParam<Int>("customer_id", true)
                             .formParam<BigDecimal>("amount", false)
@@ -136,8 +136,9 @@ class AntaeusRest(
                         val editInvoiceDoc = document()
                             .operation {
                                 it.description("Invoice Edit")
-                                it.addTagsItem("invoice")
+                                it.addTagsItem("invoices")
                             }
+                            .pathParam<Int>("id") { it.description("Invoice ID") }
                             .formParam<String>("status", false)
                             .formParam<String>("payment_reference", false)
                             .formParam<Boolean>("is_deleted", false)
