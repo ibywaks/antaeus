@@ -154,7 +154,7 @@ class AntaeusRest(
                         // URL: /rest/v1/customers
                         val listCustomersDoc = document()
                             .operation {
-                                it.description("Customers List")
+                                it.description("Customer List")
                                 it.addTagsItem("customers")
                             }
                             .queryParam<Boolean>("is_deleted") { it.description("Filters invoice list based on deletedAt attribute") }
@@ -195,6 +195,7 @@ class AntaeusRest(
                                 it.description("Customer Edit")
                                 it.addTagsItem("customers")
                             }
+                            .pathParam<Int>("id") { it.description("Customer ID") }
                             .formParam<String>("status", false)
                             .formParam<Boolean>("is_deleted", false)
                             .formParam<String>("currency", false)
