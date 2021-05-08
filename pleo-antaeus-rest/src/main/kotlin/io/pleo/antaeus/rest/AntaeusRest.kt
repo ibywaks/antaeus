@@ -253,9 +253,9 @@ class AntaeusRest(
                             .formParam<BigDecimal>("amount", false)
                             .formParam<String>("currency", false)
                             .json<Customer>("200")
-                        put(":id") {
+                        put(":id", documented(editSubscriptionDoc) {
                             subscriptionController.edit(it)
-                        }
+                        })
                     }
                 }
             }
