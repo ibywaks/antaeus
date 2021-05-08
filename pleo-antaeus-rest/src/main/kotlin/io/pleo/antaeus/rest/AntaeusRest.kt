@@ -9,6 +9,13 @@ import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.*
 import io.javalin.plugin.openapi.OpenApiOptions
 import io.javalin.plugin.openapi.OpenApiPlugin
+import io.javalin.plugin.openapi.annotations.OpenApi
+import io.javalin.plugin.openapi.annotations.OpenApiContent
+import io.javalin.plugin.openapi.annotations.OpenApiParam
+import io.javalin.plugin.openapi.annotations.OpenApiResponse
+import io.javalin.plugin.openapi.dsl.document
+import io.javalin.plugin.openapi.dsl.documented
+import io.javalin.plugin.openapi.ui.SwaggerOptions
 import io.pleo.antaeus.core.exceptions.*
 import io.pleo.antaeus.core.external.payment.StripeService
 import io.pleo.antaeus.core.helpers.calculatePartialPlanAmount
@@ -17,6 +24,7 @@ import io.pleo.antaeus.core.services.InvoiceService
 import io.pleo.antaeus.core.services.SubscriptionPlanService
 import io.pleo.antaeus.core.services.SubscriptionService
 import io.pleo.antaeus.models.*
+import io.pleo.antaeus.rest.controllers.InvoiceController
 import mu.KotlinLogging
 import java.text.SimpleDateFormat
 import java.time.LocalDate
@@ -24,6 +32,7 @@ import java.time.temporal.TemporalAdjusters
 import java.util.Date
 import java.util.concurrent.TimeUnit
 import io.swagger.v3.oas.models.info.Info
+import java.math.BigDecimal
 
 /* ktlint-enable no-wildcard-imports */
 
@@ -35,7 +44,8 @@ class AntaeusRest(
     private val customerService: CustomerService,
     private val subscriptionService: SubscriptionService,
     private val subscriptionPlanService: SubscriptionPlanService,
-    private val stripeService: StripeService
+    private val stripeService: StripeService,
+    private val invoiceController: InvoiceController
 ) : Runnable {
 
     override fun run() {
@@ -46,7 +56,9 @@ class AntaeusRest(
         val applicationInfo: Info = Info()
             .version("1.0")
             .description("Pleo Invoicing and Billing API")
-        return OpenApiOptions(applicationInfo).path("/swagger-docs")
+        return OpenApiOptions(applicationInfo)
+            .path("/swagger-docs")
+            .swagger(SwaggerOptions("/swagger-ui"))
     }
 
     // Set up Javalin rest app
@@ -84,97 +96,57 @@ class AntaeusRest(
                 path("v1") {
                     path("invoices") {
                         // URL: /rest/v1/invoices
-                        get {
-                            val isDeleted = it.queryParam("is_deleted") ?: false
-                            val status = it.queryParam("status")
-
-                            var selectedStatus: InvoiceStatus? = null
-
-                            if (status != null) {
-                                selectedStatus = InvoiceStatus.valueOf(status)
+                        val listInvoiceDoc = document()
+                            .operation {
+                                it.description("Invoice List")
+                                it.addTagsItem("invoice")
                             }
-
-                            it.json(invoiceService.fetchAll(isDeleted as Boolean, selectedStatus))
-                        }
+                            .queryParam<Boolean>("is_deleted") { it.description("Filters invoice list based on deletedAt attribute") }
+                            .queryParam<String>("status") { it.description("Filters invoice list based on status") }
+                            .jsonArray<Invoice>("200")
+                        get("", documented(listInvoiceDoc) { ctx -> invoiceController.list(ctx) })
 
                         // URL: /rest/v1/invoices/{:id}
-                        get(":id") {
-                            it.json(invoiceService.fetch(it.pathParam("id").toInt()))
-                        }
+                        val fetchInvoiceDoc = document()
+                            .operation {
+                                it.description("Invoice Fetch")
+                                it.addTagsItem("invoice")
+                            }
+                            .pathParam<Int>("id") { it.description("Invoice ID") }
+                            .json<Invoice>("200")
+                        get(":id", documented(fetchInvoiceDoc) {
+                            invoiceController.index(it)
+                        })
 
                         //URL: /rest/v1/invoices
-                        post {
-                            val customerId = it.formParam("customer_id")?.toInt()
-                            val amount = it.formParam("amount")?.toBigDecimal()
-                            val currency = it.formParam("currency")
-
-                            var customAmount: Money? = null
-                            if (amount != null && currency != null) {
-                                customAmount = Money(
-                                    value = amount,
-                                    currency = Currency.valueOf(currency)
-                                )
+                        val createInvoiceDoc = document()
+                            .operation {
+                                it.description("Invoice Create")
+                                it.addTagsItem("invoice")
                             }
-
-                            try {
-                                val customer = customerService.fetch(customerId as Int)
-
-                                val subscriptions = subscriptionService.fetchAll(false, customer)
-
-                                if (subscriptions.isEmpty()) throw NoCustomerSubscriptionException(customerId)
-
-                                it.json(invoiceService.create(
-                                    customer,
-                                    subscriptions[0],
-                                    customAmount
-                                ))
-                            } catch (e: CustomerNotFoundException) {
-                                it.status(400).result(e.message ?: "Customer $customerId not found")
-                            } catch (e: InvoiceNotCreatedException) {
-                                it.status(400).result(e.message ?: "Unable to create invoice for $customerId")
-                            } catch (e: NoCustomerSubscriptionException) {
-                                it.status(400).result(e.message ?: "Customer $customerId has no active subscriptions")
-                            } catch (e: Exception) {
-                                it.status(400).result(e.message ?: "Unable to create invoice for $customerId")
-                            }
-                        }
+                            .formParam<Int>("customer_id", true)
+                            .formParam<BigDecimal>("amount", false)
+                            .formParam<String>("currency", true)
+                            .json<Invoice>("200")
+                        post("", documented(createInvoiceDoc) {
+                            invoiceController.create(it)
+                        })
 
                         //URL: /rest/v1/invoices/{:id}
-                        put(":id") {
-                            val id = it.pathParam("id").toInt()
-
-                            try {
-                                val amount = it.formParam("amount")?.toBigDecimal()
-                                val currency = it.formParam("currency")
-                                val status = it.formParam("status")
-                                val paymentRef = it.formParam("payment_reference")
-                                val isDeleted = it.formParam("is_deleted")?.toBoolean()
-
-                                var newStatus: InvoiceStatus? = null
-                                var newAmount: Money? = null
-
-                                if (amount != null && currency != null) {
-                                    newAmount = Money(
-                                        value = amount,
-                                        currency = Currency.valueOf(currency)
-                                    )
-                                }
-
-                                if (status != null) {
-                                    newStatus = InvoiceStatus.valueOf(status)
-                                }
-
-                                it.json(invoiceService.update(
-                                    id,
-                                    InvoiceUpdateSchema(
-                                        amount = newAmount,
-                                        status = newStatus,
-                                        isDeleted = isDeleted as Boolean,
-                                        paymentRef = paymentRef
-                                    )
-                                ))
-                            } catch (e: Exception) { it.status(400).result("unable to update invoice $id")}
-                        }
+                        val editInvoiceDoc = document()
+                            .operation {
+                                it.description("Invoice Edit")
+                                it.addTagsItem("invoice")
+                            }
+                            .formParam<String>("status", false)
+                            .formParam<String>("payment_reference", false)
+                            .formParam<Boolean>("is_deleted", false)
+                            .formParam<BigDecimal>("amount", false)
+                            .formParam<String>("currency", false)
+                            .json<Invoice>("200")
+                        put(":id", documented(editInvoiceDoc) {
+                            invoiceController.edit(it)
+                        })
                     }
 
                     path("customers") {
