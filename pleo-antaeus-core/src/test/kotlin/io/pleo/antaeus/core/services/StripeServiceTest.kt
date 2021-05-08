@@ -19,38 +19,7 @@ import java.math.BigDecimal
 class StripeServiceTest {
     // mock dal
     private val dal = mockk<AntaeusDal>{
-        val result1 = Klaxon().parse<Customer>(
-            """
-            {
-                "id": 200,
-                "currency": "NGN",
-                "status": "ACTIVE",
-                "stripeId": "CUS_1234",
-                "defaultStripePaymentMethodId": "PM_1234",
-                "createdAt": 1619725878925,
-                "updatedAt": 1619725878925,
-                "deletedAt": null
-            }
-        """.trimIndent()
-        )
 
-        val result2 = Klaxon().parse<Customer>(
-            """
-            {
-                "id": 205,
-                "currency": "NGN",
-                "status": "ACTIVE",
-                "stripeId": "CUS_123456",
-                "defaultStripePaymentMethodId": null,
-                "createdAt": 1619725878925,
-                "updatedAt": 1619725878925,
-                "deletedAt": null
-            }
-        """.trimIndent()
-        )
-
-        every { fetchCustomer(200) } returns result1
-        every { fetchCustomer(205) } returns result2
     }
 
     private val testApiKey = "sk_test_51ImgwpBaFgF9u9b7FUhawKwVfN7yldjzfbgRS27zHkmjHK0Ioo3oPcABKvoEAcSgMvNkxesDtagQOWb1wy61V6px00AVJpf1UL"
@@ -84,35 +53,6 @@ class StripeServiceTest {
         assertNotNull(intentObj)
         assertNotNull(intentObj?.secretKey)
     }
-
-//    @Test
-//    fun `should not charge invoice if user has no payment method`() {
-//        val amount = Money(
-//            value = BigDecimal(5000),
-//            currency = Currency.NGN
-//        )
-//        val invoice = Invoice(
-//            id = 101,
-//            subscriptionId = 101,
-//            customerId = 205,
-//            amount = amount,
-//            status = InvoiceStatus.PENDING,
-//            chargeStartDate = 1619725878925,
-//            chargeEndDate = 1619725878925,
-//            createdAt = 1619725878925,
-//            updatedAt = 1619725878925
-//        )
-//
-//        val payload = ChargePayload(
-//            amount = amount.value.toLong(),
-//            currency = amount.currency,
-//            invoiceId = "101"
-//        )
-//
-//        val result = stripeService.charge(invoice)
-//
-//        assertEquals( false, result)
-//    }
 
     @Test
     fun `successfully charges payload`() {

@@ -49,16 +49,22 @@ class BillingService(
         return invoiceService.update(invoice.id, update)
     }
 
-    fun chargeSingleInvoice(invoice: Invoice) {
-        chargeInvoice(invoice)
+    fun chargeSingleInvoice(invoice: Invoice): Invoice {
+        return chargeInvoice(invoice)
     }
 
-    fun chargeAllActiveInvoices() {
+    fun chargeAllActiveInvoices(): List<Invoice> {
         val invoices = invoiceService.fetchAll()
 
+        val updatedInvoices = mutableListOf<Invoice>()
+
         invoices.forEach { invoice ->
-            chargeInvoice(invoice)
+            updatedInvoices.add(
+                chargeInvoice(invoice)
+            )
         }
+
+        return updatedInvoices.toList()
     }
 
     fun retryFailedInvoices() {
