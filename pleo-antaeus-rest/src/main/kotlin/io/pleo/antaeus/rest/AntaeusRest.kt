@@ -24,6 +24,7 @@ import io.pleo.antaeus.core.services.InvoiceService
 import io.pleo.antaeus.core.services.SubscriptionPlanService
 import io.pleo.antaeus.core.services.SubscriptionService
 import io.pleo.antaeus.models.*
+import io.pleo.antaeus.rest.controllers.CustomerController
 import io.pleo.antaeus.rest.controllers.InvoiceController
 import mu.KotlinLogging
 import java.text.SimpleDateFormat
@@ -45,7 +46,8 @@ class AntaeusRest(
     private val subscriptionService: SubscriptionService,
     private val subscriptionPlanService: SubscriptionPlanService,
     private val stripeService: StripeService,
-    private val invoiceController: InvoiceController
+    private val invoiceController: InvoiceController,
+    private val customerController: CustomerController
 ) : Runnable {
 
     override fun run() {
@@ -151,103 +153,68 @@ class AntaeusRest(
 
                     path("customers") {
                         // URL: /rest/v1/customers
-                        get {
-                            val isDeleted = it.queryParam("is_deleted")?.toBoolean()
-                            val status = it.queryParam("status")
-
-                            var selectedStatus: CustomerStatus? = null
-
-                            if (status != null) {
-                                selectedStatus = CustomerStatus.valueOf(status)
+                        val listCustomersDoc = document()
+                            .operation {
+                                it.description("Customers List")
+                                it.addTagsItem("customers")
                             }
-
-                            it.json(customerService.fetchAll(isDeleted as Boolean, selectedStatus))
-                        }
+                            .queryParam<Boolean>("is_deleted") { it.description("Filters invoice list based on deletedAt attribute") }
+                            .queryParam<String>("status") { it.description("Filters invoice list based on status") }
+                            .jsonArray<Customer>("200")
+                        get("", documented(listCustomersDoc) {
+                            customerController.list(it)
+                        })
 
                         // URL: /rest/v1/customers/{:id}
-                        get(":id") {
-                            it.json(customerService.fetch(it.pathParam("id").toInt()))
-                        }
+                        val fetchCustomerDoc = document()
+                            .operation {
+                                it.description("Customer Fetch")
+                                it.addTagsItem("customers")
+                            }
+                            .pathParam<Int>("id") { it.description("Customer ID") }
+                            .json<Customer>("200")
+                        get(":id", documented(fetchCustomerDoc) {
+                            customerController.index(it)
+                        })
 
                         // URL: /rest/v1/customers
-                        post {
-                            val currency = it.formParam("currency")
-                            val planId = it.formParam("plan_id")?.toInt()
-
-                            var customerCurrency: Currency = Currency.USD
-                            if (currency != null) {
-                                customerCurrency = Currency.valueOf(currency)
+                        val createCustomerDoc = document()
+                            .operation {
+                                it.description("Customer Create")
+                                it.addTagsItem("customers")
                             }
-
-                            try {
-                                val subscriptionPlan = subscriptionPlanService.fetch(planId as Int)
-                                val customer = customerService.create(customerCurrency)
-                                val subscription = subscriptionService.create(subscriptionPlan, customer)
-
-                                val startDate = Date().time
-                                val end = LocalDate.now().with(TemporalAdjusters.lastDayOfMonth())
-                                val endDate = (SimpleDateFormat("yyyy-mm-dd").parse(end.toString())).time
-
-                                invoiceService.create(customer, subscription, null, startDate, endDate)
-
-                                it.json(customer)
-                            } catch (e: CustomerNotCreatedException) {
-                                it.status(400).result(e.message ?: "unable to create new customer")
-                            } catch (e: SubscriptionNotCreatedException) {
-                                it.status(400).result(e.message ?: "unable to create customer subscription")
-                            } catch (e: InvoiceNotCreatedException) {
-                                it.status(400).result(e.message ?: "unable to create customer invoice")
-                            } catch (e: Exception) {
-                                it.status(400).result(e.message ?: "unable to register new customer")
-                            }
-                        }
+                            .formParam<Int>("plan_id", true)
+                            .formParam<String>("currency", true)
+                            .json<Customer>("200")
+                        post("", documented(createCustomerDoc) {
+                            customerController.create(it)
+                        })
 
                         //URL: /rest/v1/customers/{:id}
-                        put(":id") {
-                            val id = it.pathParam("id").toInt()
-
-                            val status = it.formParam("status")
-                            val isDeleted = it.formParam("is_deleted")?.toBoolean()
-
-                            var newStatus : CustomerStatus? = null
-                            if (status != null) {
-                                newStatus = CustomerStatus.valueOf(status)
+                        val editCustomerDoc = document()
+                            .operation {
+                                it.description("Customer Edit")
+                                it.addTagsItem("customers")
                             }
-
-                            try {
-                                it.json(
-                                    customerService.update(
-                                        id,
-                                        CustomerUpdateSchema(
-                                            status = newStatus,
-                                            isDeleted = isDeleted as Boolean
-                                        )
-                                    )
-                                )
-                            } catch (e: Exception) {
-                                it.status(400).result(e.message ?: "unable to update customer $id")
-                            }
-                        }
+                            .formParam<String>("status", false)
+                            .formParam<Boolean>("is_deleted", false)
+                            .formParam<String>("currency", false)
+                            .json<Customer>("200")
+                        put(":id", documented(editCustomerDoc) {
+                            customerController.edit(it)
+                        })
 
                         //URL: /rest/v1/customer/{:id}
-                        delete(":id") {
-                            val id = it.pathParam("id").toInt()
-
-                            val customer = customerService.update(id, CustomerUpdateSchema(isDeleted = true))
-                            val activeInvoice = (invoiceService.fetchAll(false, InvoiceStatus.PENDING, customer))[0]
-
-                            subscriptionService.update(activeInvoice.subscriptionId, SubscriptionUpdateSchema(isDeleted = true))
-
-                            val end = LocalDate.now().with(TemporalAdjusters.lastDayOfMonth())
-                            val endDate = (SimpleDateFormat("yyyy-mm-dd").parse(end.toString())).time
-
-                            val diff = endDate - activeInvoice.chargeStartDate
-                            val days = TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS)
-
-                            val proratedAmount = calculatePartialPlanAmount(activeInvoice.amount, days)
-
-                            invoiceService.update(activeInvoice.id, InvoiceUpdateSchema( endDate = endDate, amount = proratedAmount ))
-                        }
+                        val deleteCustomerDoc = document()
+                            .operation {
+                                it.description("Customer Delete")
+                                it.addTagsItem("customers")
+                            }
+                            .pathParam<Int>("id") { it.description("Customer ID") }
+                            .result<Int>("200")
+                        delete(":id", documented(deleteCustomerDoc) {
+                            customerController.delete(it)
+                        })
                     }
 
                     path("subscriptions") {

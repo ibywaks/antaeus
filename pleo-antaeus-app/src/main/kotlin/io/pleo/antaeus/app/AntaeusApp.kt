@@ -17,6 +17,7 @@ import io.pleo.antaeus.data.CustomerTable
 import io.pleo.antaeus.data.InvoiceTable
 import io.pleo.antaeus.data.AntaeusDal
 import io.pleo.antaeus.rest.AntaeusRest
+import io.pleo.antaeus.rest.controllers.CustomerController
 import io.pleo.antaeus.rest.controllers.InvoiceController
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -96,6 +97,12 @@ fun main() {
         customerService = customerService,
         subscriptionService = subscriptionService
     )
+    val customerController = CustomerController(
+        invoiceService = invoiceService,
+        customerService = customerService,
+        subscriptionService = subscriptionService,
+        subscriptionPlanService = subscriptionPlanService
+    )
 
     // Create REST web service
     AntaeusRest(
@@ -104,6 +111,7 @@ fun main() {
         subscriptionService = subscriptionService,
         subscriptionPlanService = subscriptionPlanService,
         stripeService = stripeService,
-        invoiceController = invoiceController
+        invoiceController = invoiceController,
+        customerController = customerController
     ).run()
 }
