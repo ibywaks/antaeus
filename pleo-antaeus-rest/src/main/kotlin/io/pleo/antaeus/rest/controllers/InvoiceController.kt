@@ -18,7 +18,7 @@ class InvoiceController(
     private val subscriptionService: SubscriptionService
 ) {
     fun list(ctx: Context) {
-        val isDeleted = ctx.queryParam("is_deleted") ?: false
+        val isDeleted = ctx.queryParam("is_deleted") == "true"
         val status = ctx.queryParam("status")
         val customerId = ctx.queryParam("customer_id")
 
@@ -33,7 +33,7 @@ class InvoiceController(
             customer = customerService.fetch(customerId.toInt())
         }
 
-        ctx.json(invoiceService.fetchAll(isDeleted == "true", selectedStatus, customer))
+        ctx.json(invoiceService.fetchAll(isDeleted, selectedStatus, customer))
     }
 
     fun edit(ctx: Context) {
@@ -44,7 +44,7 @@ class InvoiceController(
             val currency = ctx.formParam("currency")
             val status = ctx.formParam("status")
             val paymentRef = ctx.formParam("payment_reference")
-            val isDeleted = ctx.formParam("is_deleted")
+            val isDeleted = ctx.formParam("is_deleted") == "true"
 
             var newStatus: InvoiceStatus? = null
             var newAmount: Money? = null
@@ -65,7 +65,7 @@ class InvoiceController(
                 InvoiceUpdateSchema(
                     amount = newAmount,
                     status = newStatus,
-                    isDeleted = isDeleted == "true",
+                    isDeleted = isDeleted,
                     paymentRef = paymentRef
                 )
             ))

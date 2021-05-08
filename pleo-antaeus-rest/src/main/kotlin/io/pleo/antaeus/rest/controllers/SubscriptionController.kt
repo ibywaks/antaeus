@@ -8,7 +8,7 @@ import io.pleo.antaeus.models.SubscriptionUpdateSchema
 
 class SubscriptionController(private val subscriptionService: SubscriptionService) {
     fun list(ctx: Context) {
-        val isDeleted = ctx.queryParam("is_deleted") ?: false
+        val isDeleted = ctx.queryParam("is_deleted") == "true"
 
         ctx.json(subscriptionService.fetchAll(isDeleted as Boolean))
     }
@@ -22,7 +22,7 @@ class SubscriptionController(private val subscriptionService: SubscriptionServic
 
         val amount = ctx.formParam("amount")?.toBigDecimal()
         val currency = ctx.formParam("currency")
-        val isDeleted = ctx.formParam("is_deleted")?.toBoolean()
+        val isDeleted = ctx.formParam("is_deleted") == "true"
 
         var newAmount: Money? = null
 
@@ -38,7 +38,7 @@ class SubscriptionController(private val subscriptionService: SubscriptionServic
                 id,
                 SubscriptionUpdateSchema(
                     amount = newAmount,
-                    isDeleted = isDeleted as Boolean
+                    isDeleted = isDeleted
                 )
             )
         )
