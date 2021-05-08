@@ -221,7 +221,7 @@ class AntaeusRest(
                         // URL: /rest/v1/subscriptions
                         val listSubscriptionsDoc = document()
                             .operation {
-                                it.description("Subscriptions List")
+                                it.description("Subscription List")
                                 it.addTagsItem("subscriptions")
                             }
                             .queryParam<Boolean>("is_deleted") { it.description("Filters subscription list based on deletedAt attribute") }
