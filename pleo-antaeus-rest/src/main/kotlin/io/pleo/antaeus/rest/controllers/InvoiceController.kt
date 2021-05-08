@@ -20,41 +20,22 @@ class InvoiceController(
     fun list(ctx: Context) {
         val isDeleted = ctx.queryParam("is_deleted") ?: false
         val status = ctx.queryParam("status")
+        val customerId = ctx.queryParam("customer_id")
 
         var selectedStatus: InvoiceStatus? = null
+        var customer: Customer? = null
 
         if (status != null) {
-            selectedStatus = InvoiceStatus.valueOf(status)
+            selectedStatus = InvoiceStatus.valueOf(status.toUpperCase())
         }
 
-        ctx.json(invoiceService.fetchAll(isDeleted as Boolean, selectedStatus))
+        if (customerId != null) {
+            customer = customerService.fetch(customerId.toInt())
+        }
+
+        ctx.json(invoiceService.fetchAll(isDeleted == "true", selectedStatus, customer))
     }
 
-    @OpenApi(
-        description = "Invoice Update",
-        tags = ["invoice"],
-        pathParams = [
-            OpenApiParam(
-                name = "id",
-                description = "Invoice ID"
-            )
-        ],
-        requestBody = OpenApiRequestBody(
-            description = "object containing invoice edit params",
-            content = [
-                OpenApiContent(
-                    type = "application/json",
-                    from = InvoiceUpdateSchema::class
-                )
-            ]
-        ),
-        responses = [
-            OpenApiResponse(
-                status = "200",
-                content = [OpenApiContent(from = Invoice::class)]
-            )
-        ]
-    )
     fun edit(ctx: Context) {
         val id = ctx.pathParam("id").toInt()
 
@@ -63,7 +44,7 @@ class InvoiceController(
             val currency = ctx.formParam("currency")
             val status = ctx.formParam("status")
             val paymentRef = ctx.formParam("payment_reference")
-            val isDeleted = ctx.formParam("is_deleted")?.toBoolean()
+            val isDeleted = ctx.formParam("is_deleted")
 
             var newStatus: InvoiceStatus? = null
             var newAmount: Money? = null
@@ -71,12 +52,12 @@ class InvoiceController(
             if (amount != null && currency != null) {
                 newAmount = Money(
                     value = amount,
-                    currency = Currency.valueOf(currency)
+                    currency = Currency.valueOf(currency.toUpperCase())
                 )
             }
 
             if (status != null) {
-                newStatus = InvoiceStatus.valueOf(status)
+                newStatus = InvoiceStatus.valueOf(status.toUpperCase())
             }
 
             ctx.json(invoiceService.update(
@@ -84,7 +65,7 @@ class InvoiceController(
                 InvoiceUpdateSchema(
                     amount = newAmount,
                     status = newStatus,
-                    isDeleted = isDeleted as Boolean,
+                    isDeleted = isDeleted == "true",
                     paymentRef = paymentRef
                 )
             ))
@@ -104,7 +85,7 @@ class InvoiceController(
         if (amount != null && currency != null) {
             customAmount = Money(
                 value = amount,
-                currency = Currency.valueOf(currency)
+                currency = Currency.valueOf(currency.toUpperCase())
             )
         }
 

@@ -30,7 +30,7 @@ class CustomerController(
         var selectedStatus: CustomerStatus? = null
 
         if (status != null) {
-            selectedStatus = CustomerStatus.valueOf(status)
+            selectedStatus = CustomerStatus.valueOf(status.toUpperCase())
         }
 
         ctx.json(customerService.fetchAll(isDeleted as Boolean, selectedStatus))
@@ -46,7 +46,7 @@ class CustomerController(
 
         var customerCurrency: Currency = Currency.USD
         if (currency != null) {
-            customerCurrency = Currency.valueOf(currency)
+            customerCurrency = Currency.valueOf(currency.toUpperCase())
         }
 
         try {
@@ -80,7 +80,7 @@ class CustomerController(
 
         var newStatus : CustomerStatus? = null
         if (status != null) {
-            newStatus = CustomerStatus.valueOf(status)
+            newStatus = CustomerStatus.valueOf(status.toUpperCase())
         }
 
         try {

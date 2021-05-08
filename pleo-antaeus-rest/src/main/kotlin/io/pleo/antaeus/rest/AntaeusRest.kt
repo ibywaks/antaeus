@@ -103,6 +103,7 @@ class AntaeusRest(
                             }
                             .queryParam<Boolean>("is_deleted") { it.description("Filters invoice list based on deletedAt attribute") }
                             .queryParam<String>("status") { it.description("Filters invoice list based on status") }
+                            .queryParam<String>("customer_id") { it.description("Filters invoice list based on customer") }
                             .jsonArray<Invoice>("200")
                         get("", documented(listInvoiceDoc) { ctx -> invoiceController.list(ctx) })
 

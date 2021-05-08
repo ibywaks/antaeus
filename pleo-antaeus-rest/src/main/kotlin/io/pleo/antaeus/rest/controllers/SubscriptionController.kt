@@ -29,7 +29,7 @@ class SubscriptionController(private val subscriptionService: SubscriptionServic
         if (amount != null && currency != null) {
             newAmount = Money(
                 value = amount,
-                currency = Currency.valueOf(currency)
+                currency = Currency.valueOf(currency.toUpperCase())
             )
         }
 

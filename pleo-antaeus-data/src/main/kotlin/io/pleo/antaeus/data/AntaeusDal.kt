@@ -46,6 +46,8 @@ class AntaeusDal(private val db: Database) {
 
             if (!isDeleted) {
                 query.andWhere{ InvoiceTable.deletedAt.isNull() }
+            } else {
+                query.andWhere{ InvoiceTable.deletedAt.isNotNull() }
             }
 
             if (customer != null) {
