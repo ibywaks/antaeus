@@ -26,6 +26,7 @@ import io.pleo.antaeus.core.services.SubscriptionService
 import io.pleo.antaeus.models.*
 import io.pleo.antaeus.rest.controllers.CustomerController
 import io.pleo.antaeus.rest.controllers.InvoiceController
+import io.pleo.antaeus.rest.controllers.SubscriptionController
 import mu.KotlinLogging
 import java.text.SimpleDateFormat
 import java.time.LocalDate
@@ -47,7 +48,8 @@ class AntaeusRest(
     private val subscriptionPlanService: SubscriptionPlanService,
     private val stripeService: StripeService,
     private val invoiceController: InvoiceController,
-    private val customerController: CustomerController
+    private val customerController: CustomerController,
+    private val subscriptionController: SubscriptionController
 ) : Runnable {
 
     override fun run() {
@@ -219,43 +221,42 @@ class AntaeusRest(
 
                     path("subscriptions") {
                         // URL: /rest/v1/subscriptions
-                        get {
-                            val isDeleted = it.queryParam("is_deleted") ?: false
-
-                            it.json(subscriptionService.fetchAll(isDeleted as Boolean))
-                        }
-
-                        //URL: /rest/v1/subscriptions/{:id}
-                        get(":id") {
-                            it.json(subscriptionService.fetch(it.pathParam("id").toInt()))
-                        }
-
-                        //URL: /rest/v1/subscriptions/{:id}
-                        put(":id") {
-                            val id = it.pathParam("id").toInt()
-
-                            val amount = it.formParam("amount")?.toBigDecimal()
-                            val currency = it.formParam("currency")
-                            val isDeleted = it.formParam("is_deleted")?.toBoolean()
-
-                            var newAmount: Money? = null
-
-                            if (amount != null && currency != null) {
-                                newAmount = Money(
-                                    value = amount,
-                                    currency = Currency.valueOf(currency)
-                                )
+                        val listSubscriptionsDoc = document()
+                            .operation {
+                                it.description("Subscriptions List")
+                                it.addTagsItem("subscriptions")
                             }
+                            .queryParam<Boolean>("is_deleted") { it.description("Filters subscription list based on deletedAt attribute") }
+                            .jsonArray<Subscription>("200")
+                        get("", documented(listSubscriptionsDoc) {
+                            subscriptionController.list(it)
+                        })
 
-                            it.json(
-                                subscriptionService.update(
-                                    id,
-                                    SubscriptionUpdateSchema(
-                                        amount = newAmount,
-                                        isDeleted = isDeleted as Boolean
-                                    )
-                                )
-                            )
+                        //URL: /rest/v1/subscriptions/{:id}
+                        val fetchSubscriptionDoc = document()
+                            .operation {
+                                it.description("Subscription Fetch")
+                                it.addTagsItem("subscriptions")
+                            }
+                            .pathParam<Int>("id") { it.description("Subscription ID") }
+                            .json<Subscription>("200")
+                        get(":id", documented(fetchSubscriptionDoc) {
+                            subscriptionController.index(it)
+                        })
+
+                        //URL: /rest/v1/subscriptions/{:id}
+                        val editSubscriptionDoc = document()
+                            .operation {
+                                it.description("Subscription Edit")
+                                it.addTagsItem("subscriptions")
+                            }
+                            .pathParam<Int>("id") { it.description("Subscription ID") }
+                            .formParam<Boolean>("is_deleted", false)
+                            .formParam<BigDecimal>("amount", false)
+                            .formParam<String>("currency", false)
+                            .json<Customer>("200")
+                        put(":id") {
+                            subscriptionController.edit(it)
                         }
                     }
                 }
