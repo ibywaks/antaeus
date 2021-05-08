@@ -31,7 +31,7 @@ class BillingService(
         val payload = ChargePayload(
             amount = invoiceAmount.toLong(),
             currency = invoice.amount.currency,
-            customerReference = customer?.stripeId.toString(),
+            customerReference = customer.stripeId.toString(),
             paymentMethod = customer.defaultStripePaymentMethodId!!,
             invoiceId = invoice.id.toString()
         )

@@ -5,6 +5,7 @@ import io.mockk.justRun
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.spyk
+import io.pleo.antaeus.core.external.payment.ChargePayload
 import io.pleo.antaeus.core.external.payment.PaymentSetupDTO
 import io.pleo.antaeus.data.AntaeusDal
 import io.pleo.antaeus.core.external.payment.StripeService
@@ -81,51 +82,65 @@ class StripeServiceTest {
         val intentObj = stripeService.initPaymentSetup(setupData)
 
         assertNotNull(intentObj)
-        assertNotNull(intentObj?.clientSecret)
+        assertNotNull(intentObj?.secretKey)
     }
 
+//    @Test
+//    fun `should not charge invoice if user has no payment method`() {
+//        val amount = Money(
+//            value = BigDecimal(5000),
+//            currency = Currency.NGN
+//        )
+//        val invoice = Invoice(
+//            id = 101,
+//            subscriptionId = 101,
+//            customerId = 205,
+//            amount = amount,
+//            status = InvoiceStatus.PENDING,
+//            chargeStartDate = 1619725878925,
+//            chargeEndDate = 1619725878925,
+//            createdAt = 1619725878925,
+//            updatedAt = 1619725878925
+//        )
+//
+//        val payload = ChargePayload(
+//            amount = amount.value.toLong(),
+//            currency = amount.currency,
+//            invoiceId = "101"
+//        )
+//
+//        val result = stripeService.charge(invoice)
+//
+//        assertEquals( false, result)
+//    }
+
     @Test
-    fun `should not charge invoice if user has no payment method`() {
+    fun `successfully charges payload`() {
         val amount = Money(
             value = BigDecimal(5000),
             currency = Currency.NGN
         )
-        val invoice = Invoice(
-            id = 101,
-            subscriptionId = 101,
-            customerId = 205,
-            amount = amount,
-            status = InvoiceStatus.PENDING,
-            chargeStartDate = 1619725878925,
-            chargeEndDate = 1619725878925,
-            createdAt = 1619725878925,
-            updatedAt = 1619725878925
+//        val invoice = Invoice(
+//            id = 101,
+//            subscriptionId = 101,
+//            customerId = 200,
+//            amount = amount,
+//            status = InvoiceStatus.PENDING,
+//            chargeStartDate = 1619725878925,
+//            chargeEndDate = 1619725878925,
+//            createdAt = 1619725878925,
+//            updatedAt = 1619725878925
+//        )
+
+        val payload = ChargePayload(
+            amount = amount.value.toLong(),
+            currency = amount.currency,
+            customerReference = "CUS_1234",
+            paymentMethod = "PM_1234",
+            invoiceId = "101"
         )
 
-        val result = stripeService.charge(invoice)
-
-        assertEquals( false, result)
-    }
-
-    @Test
-    fun `successfully charges invoice`() {
-        val amount = Money(
-            value = BigDecimal(5000),
-            currency = Currency.NGN
-        )
-        val invoice = Invoice(
-            id = 101,
-            subscriptionId = 101,
-            customerId = 200,
-            amount = amount,
-            status = InvoiceStatus.PENDING,
-            chargeStartDate = 1619725878925,
-            chargeEndDate = 1619725878925,
-            createdAt = 1619725878925,
-            updatedAt = 1619725878925
-        )
-
-        val result = stripeService.charge(invoice)
+        val result = stripeService.charge(payload)
 
         assertEquals(result, true)
     }

@@ -11,7 +11,6 @@ package io.pleo.antaeus.core.external
 import io.pleo.antaeus.core.external.payment.ChargePayload
 import io.pleo.antaeus.core.external.payment.PaymentSetupDTO
 import io.pleo.antaeus.core.external.payment.PaymentSetupObject
-import io.pleo.antaeus.models.Invoice
 
 interface PaymentProvider {
     /*
