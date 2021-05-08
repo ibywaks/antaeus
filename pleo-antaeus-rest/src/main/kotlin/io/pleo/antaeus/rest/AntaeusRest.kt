@@ -42,10 +42,6 @@ private val logger = KotlinLogging.logger {}
 private val thisFile: () -> Unit = {}
 
 class AntaeusRest(
-    private val invoiceService: InvoiceService,
-    private val customerService: CustomerService,
-    private val subscriptionService: SubscriptionService,
-    private val subscriptionPlanService: SubscriptionPlanService,
     private val stripeService: StripeService,
     private val invoiceController: InvoiceController,
     private val customerController: CustomerController,

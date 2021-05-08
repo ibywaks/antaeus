@@ -110,10 +110,6 @@ fun main() {
 
     // Create REST web service
     AntaeusRest(
-        invoiceService = invoiceService,
-        customerService = customerService,
-        subscriptionService = subscriptionService,
-        subscriptionPlanService = subscriptionPlanService,
         stripeService = stripeService,
         invoiceController = invoiceController,
         customerController = customerController,
