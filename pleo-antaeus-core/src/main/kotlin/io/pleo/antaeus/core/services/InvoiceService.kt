@@ -17,6 +17,7 @@ import io.pleo.antaeus.models.InvoiceUpdateSchema
 import java.util.concurrent.TimeUnit
 
 class InvoiceService(private val dal: AntaeusDal) {
+    val MAX_CHARGE_RETRIES = 3
     fun fetchAll(isDeleted: Boolean = false, status: InvoiceStatus? = null, customer: Customer? = null): List<Invoice> {
         return dal.fetchInvoices(isDeleted, status, customer)
     }

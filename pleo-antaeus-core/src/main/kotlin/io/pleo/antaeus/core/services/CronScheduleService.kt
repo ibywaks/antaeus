@@ -55,8 +55,7 @@ class CronScheduleService(
 
                 val updatedInvoice = invoiceService.update(invoice.id, update)
 
-                //@todo set max fails
-                if (updatedInvoice.numberOfFailedCharges!! < 3) return@forEach
+                if (updatedInvoice.numberOfFailedCharges!! < invoiceService.MAX_CHARGE_RETRIES) return@forEach
 
                 // if exceeds retries disable customer
                 customerService.update(invoice.customerId, CustomerUpdateSchema(CustomerStatus.INACTIVE))
