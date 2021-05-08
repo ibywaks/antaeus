@@ -7,6 +7,8 @@ package io.pleo.antaeus.rest
 /* ktlint-disable no-wildcard-imports */
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.*
+import io.javalin.plugin.openapi.OpenApiOptions
+import io.javalin.plugin.openapi.OpenApiPlugin
 import io.pleo.antaeus.core.exceptions.*
 import io.pleo.antaeus.core.external.payment.StripeService
 import io.pleo.antaeus.core.helpers.calculatePartialPlanAmount
@@ -16,12 +18,12 @@ import io.pleo.antaeus.core.services.SubscriptionPlanService
 import io.pleo.antaeus.core.services.SubscriptionService
 import io.pleo.antaeus.models.*
 import mu.KotlinLogging
-import java.sql.Timestamp
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.temporal.TemporalAdjusters
 import java.util.Date
 import java.util.concurrent.TimeUnit
+import io.swagger.v3.oas.models.info.Info
 
 /* ktlint-enable no-wildcard-imports */
 
@@ -40,9 +42,18 @@ class AntaeusRest(
         app.start(7000)
     }
 
+    private fun getOpenApiOptions(): OpenApiOptions {
+        val applicationInfo: Info = Info()
+            .version("1.0")
+            .description("Pleo Invoicing and Billing API")
+        return OpenApiOptions(applicationInfo).path("/swagger-docs")
+    }
+
     // Set up Javalin rest app
     private val app = Javalin
-        .create()
+        .create { config ->
+            config.registerPlugin(OpenApiPlugin(getOpenApiOptions()))
+        }
         .apply {
             // InvoiceNotFoundException: return 404 HTTP status code
             exception(EntityNotFoundException::class.java) { _, ctx ->
