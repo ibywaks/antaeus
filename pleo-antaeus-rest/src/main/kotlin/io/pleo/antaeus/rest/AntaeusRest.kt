@@ -82,15 +82,23 @@ class AntaeusRest(
     init {
         // Set up URL endpoints for the rest app
         app.routes {
-            get("/") {
+            val welcomeDoc = document()
+                .operation {
+                    it.description("API Root")
+                }
+            get("/", documented(welcomeDoc) {
                 it.result("Welcome to Antaeus! see AntaeusRest class for routes")
-            }
+            })
             path("rest") {
                 // Route to check whether the app is running
                 // URL: /rest/health
-                get("health") {
+                val healthDoc = document()
+                    .operation {
+                        it.description("API Health")
+                    }
+                get("health", documented(healthDoc) {
                     it.json("ok")
-                }
+                })
 
                 // V1
                 path("v1") {
@@ -260,21 +268,26 @@ class AntaeusRest(
                 }
             }
             path("webhooks") {
-               post("stripe") {
-                   val secretSignature = it.header("stripe-signature")
-                   val requestBody = it.body()
+                val stripeWebhookDoc = document()
+                    .operation {
+                        it.description("Stripe Webhook")
+                    }
+                    .ignore(true)
+                post("stripe", documented(stripeWebhookDoc) {
+                    val secretSignature = it.header("stripe-signature")
+                    val requestBody = it.body()
 
-                   try {
-                       if (secretSignature != null) {
-                           val event = stripeService.generateEvent(requestBody, secretSignature)
+                    try {
+                        if (secretSignature != null) {
+                            val event = stripeService.generateEvent(requestBody, secretSignature)
 
-                           stripeService.handleWebhookEvent(event)
-                           it.status(200)
-                       }
-                   } catch (e: Exception) {
-                       it.status(400)
-                   }
-               }
+                            stripeService.handleWebhookEvent(event)
+                            it.status(200)
+                        }
+                    } catch (e: Exception) {
+                        it.status(400)
+                    }
+               })
             }
         }
     }
