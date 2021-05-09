@@ -33,10 +33,19 @@ import java.sql.Connection
 /* ktlint-enable no-wildcard-imports */
 
 fun main() {
+    // Set up dotenv
+    val dotenv = dotenv{
+        directory = "../"
+    }
+
     // The tables to create in the database.
     val tables = arrayOf(InvoiceTable, CustomerTable, SubscriptionTable, SubscriptionPlanTable)
 
-    val dbFile: File = File.createTempFile("antaeus-db", ".sqlite")
+    val appMode = dotenv["MODE"]
+    val dbPath = dotenv["DB_FILE"]
+
+    val dbFile: File = File(dbPath)
+
     // Connect to the database and create the needed tables. Drop any existing data.
     val db = Database
         .connect(url = "jdbc:sqlite:${dbFile.absolutePath}",
@@ -47,23 +56,22 @@ fun main() {
             TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
             transaction(it) {
                 addLogger(StdOutSqlLogger)
-                // Drop all existing tables to ensure a clean slate on each run
-                SchemaUtils.drop(*tables)
-                // Create all tables
-                SchemaUtils.create(*tables)
+
+                if (appMode != "production") {
+                    // Drop all existing tables to ensure a clean slate on each run
+                    SchemaUtils.drop(*tables)
+                    // Create all tables
+                    SchemaUtils.create(*tables)
+                }
             }
         }
-
-    // Set up dotenv
-    val dotenv = dotenv{
-        directory = "../"
-    }
 
     // Set up data access layer.
     val dal = AntaeusDal(db = db)
 
     // Insert example data in the database.
-    setupInitialData(dal = dal)
+    if (appMode != "production")
+        setupInitialData(dal = dal)
 
     // Create core services
     val invoiceService = InvoiceService(dal = dal)
