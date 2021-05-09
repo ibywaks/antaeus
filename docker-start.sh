@@ -12,4 +12,5 @@ docker run \
   --interactive \
   --tty \
   --volume pleo-antaeus-build-cache:/root/.gradle \
+  --volume $PWD:/antaeus \
   pleo-antaeus
