@@ -1,21 +1,20 @@
 package io.pleo.antaeus.core.services
 
 /* ktlint-disable no-wildcard-imports */
+import com.beust.klaxon.Klaxon
 import io.mockk.every
 import io.mockk.mockk
-import io.pleo.antaeus.core.exceptions.InvoiceNotFoundException
 import io.pleo.antaeus.core.exceptions.InvoiceNotCreatedException
+import io.pleo.antaeus.core.exceptions.InvoiceNotFoundException
 import io.pleo.antaeus.data.AntaeusDal
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNull
-import org.junit.jupiter.api.Assertions.assertNotNull
-import com.beust.klaxon.Klaxon
 import io.pleo.antaeus.models.*
 import java.math.BigDecimal
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 /* ktlint-enable no-wildcard-imports */
-
 
 class InvoiceServiceTest {
     private val dal = mockk<AntaeusDal> {
@@ -186,7 +185,6 @@ class InvoiceServiceTest {
         every { fetchInvoices(true, null, null) } returns listOf((result2 as Invoice))
         every { fetchInvoices(false, InvoiceStatus.PAID, null) } returns listOf(result3)
 
-        
         every { updateInvoice(200, invoiceUpdates1) } returns result4
         every { updateInvoice(200, invoiceUpdates2) } returns result5
         every { updateInvoice(220, invoiceUpdates1) } returns null
@@ -194,7 +192,6 @@ class InvoiceServiceTest {
         every { createInvoice(subscription1.amount, customer1, subscription1) } returns result1
         every { createInvoice(customAmount1, customer1, subscription1) } returns result6
         every { createInvoice(customAmount2, customer1, subscription1) } returns null
-
     }
 
     private val invoiceService = InvoiceService(dal = dal)
@@ -210,7 +207,6 @@ class InvoiceServiceTest {
     @Test
     fun `will return a pending invoice`() {
         val result = invoiceService.fetch(200)
-
 
         assertEquals(result.id, 200)
         assertEquals(result.status, InvoiceStatus.PENDING)

@@ -9,33 +9,18 @@ import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.*
 import io.javalin.plugin.openapi.OpenApiOptions
 import io.javalin.plugin.openapi.OpenApiPlugin
-import io.javalin.plugin.openapi.annotations.OpenApi
-import io.javalin.plugin.openapi.annotations.OpenApiContent
-import io.javalin.plugin.openapi.annotations.OpenApiParam
-import io.javalin.plugin.openapi.annotations.OpenApiResponse
 import io.javalin.plugin.openapi.dsl.document
 import io.javalin.plugin.openapi.dsl.documented
 import io.javalin.plugin.openapi.ui.SwaggerOptions
 import io.pleo.antaeus.core.exceptions.*
-import io.pleo.antaeus.core.external.payment.StripeService
-import io.pleo.antaeus.core.helpers.calculatePartialPlanAmount
-import io.pleo.antaeus.core.services.CustomerService
-import io.pleo.antaeus.core.services.InvoiceService
-import io.pleo.antaeus.core.services.SubscriptionPlanService
-import io.pleo.antaeus.core.services.SubscriptionService
 import io.pleo.antaeus.models.*
 import io.pleo.antaeus.rest.controllers.CustomerController
 import io.pleo.antaeus.rest.controllers.InvoiceController
 import io.pleo.antaeus.rest.controllers.StripeWebhookController
 import io.pleo.antaeus.rest.controllers.SubscriptionController
-import mu.KotlinLogging
-import java.text.SimpleDateFormat
-import java.time.LocalDate
-import java.time.temporal.TemporalAdjusters
-import java.util.Date
-import java.util.concurrent.TimeUnit
 import io.swagger.v3.oas.models.info.Info
 import java.math.BigDecimal
+import mu.KotlinLogging
 
 /* ktlint-enable no-wildcard-imports */
 
@@ -128,7 +113,7 @@ class AntaeusRest(
                             invoiceController.index(it)
                         })
 
-                        //URL: /rest/v1/invoices
+                        // URL: /rest/v1/invoices
                         val createInvoiceDoc = document()
                             .operation {
                                 it.description("Invoice Create")
@@ -142,7 +127,7 @@ class AntaeusRest(
                             invoiceController.create(it)
                         })
 
-                        //URL: /rest/v1/invoices/{:id}
+                        // URL: /rest/v1/invoices/{:id}
                         val editInvoiceDoc = document()
                             .operation {
                                 it.description("Invoice Edit")
@@ -199,7 +184,7 @@ class AntaeusRest(
                             customerController.create(it)
                         })
 
-                        //URL: /rest/v1/customers/{:id}
+                        // URL: /rest/v1/customers/{:id}
                         val editCustomerDoc = document()
                             .operation {
                                 it.description("Customer Edit")
@@ -213,7 +198,7 @@ class AntaeusRest(
                             customerController.edit(it)
                         })
 
-                        //URL: /rest/v1/customer/{:id}
+                        // URL: /rest/v1/customer/{:id}
                         val deleteCustomerDoc = document()
                             .operation {
                                 it.description("Customer Delete")
@@ -239,7 +224,7 @@ class AntaeusRest(
                             subscriptionController.list(it)
                         })
 
-                        //URL: /rest/v1/subscriptions/{:id}
+                        // URL: /rest/v1/subscriptions/{:id}
                         val fetchSubscriptionDoc = document()
                             .operation {
                                 it.description("Subscription Fetch")
@@ -251,7 +236,7 @@ class AntaeusRest(
                             subscriptionController.index(it)
                         })
 
-                        //URL: /rest/v1/subscriptions/{:id}
+                        // URL: /rest/v1/subscriptions/{:id}
                         val editSubscriptionDoc = document()
                             .operation {
                                 it.description("Subscription Edit")

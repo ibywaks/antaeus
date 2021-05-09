@@ -5,7 +5,6 @@ import io.pleo.antaeus.models.Currency
 import io.pleo.antaeus.models.Money
 import java.math.BigDecimal
 
-
 private val baseCurrency = Currency.USD
 
 private data class ExchangeRate(

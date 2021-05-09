@@ -78,7 +78,7 @@ class CustomerController(
         val status = ctx.formParam("status")
         val currency = ctx.formParam("currency")
 
-        var newStatus : CustomerStatus? = null
+        var newStatus: CustomerStatus? = null
         var selectedCurrency: Currency? = null
 
         if (status != null) {
@@ -120,7 +120,7 @@ class CustomerController(
 
         val proratedAmount = calculatePartialPlanAmount(activeInvoice.amount, days)
 
-        invoiceService.update(activeInvoice.id, InvoiceUpdateSchema( endDate = endDate, amount = proratedAmount ))
+        invoiceService.update(activeInvoice.id, InvoiceUpdateSchema(endDate = endDate, amount = proratedAmount))
         ctx.status(200)
     }
 }

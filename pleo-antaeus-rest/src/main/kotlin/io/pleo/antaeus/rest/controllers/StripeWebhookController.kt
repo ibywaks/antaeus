@@ -42,7 +42,7 @@ class StripeWebhookController(
 
         val stripeObject = dataObjectDeserializer.`object`.get()
 
-        when(event.type) {
+        when (event.type) {
             "customer.created" -> {
                 val customerData = stripeObject as Customer
 

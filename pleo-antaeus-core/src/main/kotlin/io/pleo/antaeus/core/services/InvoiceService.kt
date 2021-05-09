@@ -4,16 +4,16 @@
 
 package io.pleo.antaeus.core.services
 
-import io.pleo.antaeus.core.exceptions.InvoiceNotFoundException
 import io.pleo.antaeus.core.exceptions.InvoiceNotCreatedException
+import io.pleo.antaeus.core.exceptions.InvoiceNotFoundException
 import io.pleo.antaeus.core.helpers.calculatePartialPlanAmount
 import io.pleo.antaeus.data.AntaeusDal
-import io.pleo.antaeus.models.Money
-import io.pleo.antaeus.models.Invoice
 import io.pleo.antaeus.models.Customer
-import io.pleo.antaeus.models.Subscription
+import io.pleo.antaeus.models.Invoice
 import io.pleo.antaeus.models.InvoiceStatus
 import io.pleo.antaeus.models.InvoiceUpdateSchema
+import io.pleo.antaeus.models.Money
+import io.pleo.antaeus.models.Subscription
 import java.util.concurrent.TimeUnit
 
 class InvoiceService(private val dal: AntaeusDal) {
@@ -26,7 +26,7 @@ class InvoiceService(private val dal: AntaeusDal) {
         return dal.fetchInvoice(id) ?: throw InvoiceNotFoundException(id)
     }
 
-    fun update(id: Int, updates:InvoiceUpdateSchema): Invoice {
+    fun update(id: Int, updates: InvoiceUpdateSchema): Invoice {
         return dal.updateInvoice(id, updates) ?: throw InvoiceNotFoundException(id)
     }
 

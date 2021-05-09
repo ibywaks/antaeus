@@ -11,16 +11,18 @@ package io.pleo.antaeus.app
 import io.github.cdimascio.dotenv.dotenv
 import io.pleo.antaeus.core.external.payment.StripeService
 import io.pleo.antaeus.core.services.*
-import io.pleo.antaeus.data.SubscriptionPlanTable
-import io.pleo.antaeus.data.SubscriptionTable
+import io.pleo.antaeus.data.AntaeusDal
 import io.pleo.antaeus.data.CustomerTable
 import io.pleo.antaeus.data.InvoiceTable
-import io.pleo.antaeus.data.AntaeusDal
+import io.pleo.antaeus.data.SubscriptionPlanTable
+import io.pleo.antaeus.data.SubscriptionTable
 import io.pleo.antaeus.rest.AntaeusRest
 import io.pleo.antaeus.rest.controllers.CustomerController
 import io.pleo.antaeus.rest.controllers.InvoiceController
 import io.pleo.antaeus.rest.controllers.StripeWebhookController
 import io.pleo.antaeus.rest.controllers.SubscriptionController
+import java.io.File
+import java.sql.Connection
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.StdOutSqlLogger
@@ -28,13 +30,11 @@ import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
 import setupInitialData
-import java.io.File
-import java.sql.Connection
 /* ktlint-enable no-wildcard-imports */
 
 fun main() {
     // Set up dotenv
-    val dotenv = dotenv{
+    val dotenv = dotenv {
         directory = "../"
     }
 
@@ -99,7 +99,7 @@ fun main() {
         billingService = billingService
     ).run()
 
-    //Initialize Controller classes
+    // Initialize Controller classes
     val invoiceController = InvoiceController(
         invoiceService = invoiceService,
         customerService = customerService,

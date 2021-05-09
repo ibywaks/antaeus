@@ -1,20 +1,20 @@
 package io.pleo.antaeus.core.services
 
+import com.beust.klaxon.Klaxon
 import io.mockk.every
 import io.mockk.mockk
-import io.pleo.antaeus.models.Customer
+import io.pleo.antaeus.core.exceptions.CustomerNotCreatedException
 import io.pleo.antaeus.core.exceptions.CustomerNotFoundException
 import io.pleo.antaeus.data.AntaeusDal
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
-import com.beust.klaxon.Klaxon
-import io.pleo.antaeus.core.exceptions.CustomerNotCreatedException
 import io.pleo.antaeus.models.Currency
+import io.pleo.antaeus.models.Customer
 import io.pleo.antaeus.models.CustomerStatus
 import io.pleo.antaeus.models.CustomerUpdateSchema
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
-import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
 class CustomerServiceTest {
     private val dal = mockk<AntaeusDal> {
@@ -88,7 +88,6 @@ class CustomerServiceTest {
         val customerUpdates1 = CustomerUpdateSchema(status = CustomerStatus.INACTIVE)
         val customerUpdates2 = CustomerUpdateSchema(isDeleted = true)
 
-
         every { fetchCustomer(404) } returns null
 
         every { fetchCustomer(200) } returns result1
@@ -97,7 +96,7 @@ class CustomerServiceTest {
 
         every { fetchCustomers(true, null) } returns listOf((result2 as Customer))
         every { fetchCustomers(false, null) } returns listOf((result1 as Customer), (result3 as Customer))
-        every { fetchCustomers(false, CustomerStatus.INACTIVE ) } returns listOf(result3)
+        every { fetchCustomers(false, CustomerStatus.INACTIVE) } returns listOf(result3)
 
         every { updateCustomer(251, customerUpdates1) } returns null
         every { updateCustomer(203, customerUpdates1) } returns result4

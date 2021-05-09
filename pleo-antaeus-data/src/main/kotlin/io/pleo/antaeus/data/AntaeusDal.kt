@@ -10,18 +10,17 @@ package io.pleo.antaeus.data
 /* ktlint-disable no-wildcard-imports */
 import io.pleo.antaeus.models.*
 import io.pleo.antaeus.models.Currency
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.update
-import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.andWhere
-import org.jetbrains.exposed.sql.transactions.transaction
-import java.sql.Timestamp
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.temporal.TemporalAdjusters
 import java.util.*
+import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.andWhere
+import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.update
 /* ktlint-enable no-wildcard-imports */
 
 class AntaeusDal(private val db: Database) {
@@ -42,16 +41,16 @@ class AntaeusDal(private val db: Database) {
             val query = InvoiceTable.selectAll()
 
             if (status != null)
-                query.andWhere{ InvoiceTable.status.eq(status.toString()) }
+                query.andWhere { InvoiceTable.status.eq(status.toString()) }
 
             if (!isDeleted) {
-                query.andWhere{ InvoiceTable.deletedAt.isNull() }
+                query.andWhere { InvoiceTable.deletedAt.isNull() }
             } else {
-                query.andWhere{ InvoiceTable.deletedAt.isNotNull() }
+                query.andWhere { InvoiceTable.deletedAt.isNotNull() }
             }
 
             if (customer != null) {
-                query.andWhere{ InvoiceTable.customerId.eq(customer.id) }
+                query.andWhere { InvoiceTable.customerId.eq(customer.id) }
             }
 
             val results = query.map { it.toInvoice() }
@@ -145,9 +144,9 @@ class AntaeusDal(private val db: Database) {
             val query = SubscriptionTable.selectAll()
 
             if (!isDeleted) {
-                query.andWhere{ SubscriptionTable.deletedAt.isNull() }
+                query.andWhere { SubscriptionTable.deletedAt.isNull() }
             } else {
-                query.andWhere{ SubscriptionTable.deletedAt.isNotNull() }
+                query.andWhere { SubscriptionTable.deletedAt.isNotNull() }
             }
 
             if (customer != null) {
@@ -158,7 +157,7 @@ class AntaeusDal(private val db: Database) {
                 query.andWhere { SubscriptionTable.planId.eq(plan.id) }
             }
 
-            val results = query.map{ it.toSubscription() }
+            val results = query.map { it.toSubscription() }
 
             results
         }
@@ -218,14 +217,14 @@ class AntaeusDal(private val db: Database) {
             val query = CustomerTable.selectAll()
 
             if (status != null)
-                query.andWhere{ CustomerTable.status eq status.toString() }
+                query.andWhere { CustomerTable.status eq status.toString() }
 
             if (!isDeleted) {
-                query.andWhere{ CustomerTable.deletedAt.isNull() }
+                query.andWhere { CustomerTable.deletedAt.isNull() }
             } else {
-                query.andWhere{ CustomerTable.deletedAt.isNotNull() }
+                query.andWhere { CustomerTable.deletedAt.isNotNull() }
             }
-                
+
             val results = query.map { it.toCustomer() }
 
             results

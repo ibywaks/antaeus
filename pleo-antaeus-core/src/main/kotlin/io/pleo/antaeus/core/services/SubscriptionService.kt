@@ -4,9 +4,9 @@ import io.pleo.antaeus.core.exceptions.SubscriptionNotCreatedException
 import io.pleo.antaeus.core.exceptions.SubscriptionNotFoundException
 import io.pleo.antaeus.core.helpers.convertCurrency
 import io.pleo.antaeus.data.AntaeusDal
+import io.pleo.antaeus.models.Customer
 import io.pleo.antaeus.models.Money
 import io.pleo.antaeus.models.Subscription
-import io.pleo.antaeus.models.Customer
 import io.pleo.antaeus.models.SubscriptionPlan
 import io.pleo.antaeus.models.SubscriptionUpdateSchema
 

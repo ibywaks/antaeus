@@ -1,23 +1,23 @@
 package io.pleo.antaeus.core.external.payment
 
-import io.pleo.antaeus.core.external.PaymentProvider
 import com.stripe.Stripe
 import com.stripe.exception.CardException
 import com.stripe.exception.SignatureVerificationException
-import com.stripe.param.PaymentIntentCreateParams
-import com.stripe.model.Customer
 import com.stripe.exception.StripeException
+import com.stripe.model.Customer
 import com.stripe.model.Event
 import com.stripe.model.PaymentIntent
 import com.stripe.model.SetupIntent
 import com.stripe.net.Webhook
+import com.stripe.param.PaymentIntentCreateParams
 import com.stripe.param.SetupIntentCreateParams
+import io.pleo.antaeus.core.external.PaymentProvider
 import java.lang.Exception
 
 class StripeService(
     private val apiKey: String,
     private val webhookSecretKey: String
-): PaymentProvider {
+) : PaymentProvider {
 
     override fun charge(payload: ChargePayload): Boolean {
         Stripe.apiKey = apiKey

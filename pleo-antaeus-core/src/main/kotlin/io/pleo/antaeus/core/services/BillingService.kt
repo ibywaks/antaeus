@@ -65,10 +65,10 @@ class BillingService(
                     chargeInvoice(invoice)
                 )
             } catch (e: Exception) {
-                //Update customer to inactive
+                // Update customer to inactive
                 customerService.update(invoice.customerId, CustomerUpdateSchema(CustomerStatus.INACTIVE))
 
-                //send an internal notification i.e. slack to checkout customer/issue"
+                // send an internal notification i.e. slack to checkout customer/issue"
             }
         }
 
@@ -86,7 +86,7 @@ class BillingService(
                 if (updatedInvoice.numberOfFailedCharges!! >= invoiceService.MAX_CHARGE_RETRIES)
                     customerService.update(invoice.customerId, CustomerUpdateSchema(CustomerStatus.INACTIVE))
             } catch (e: Exception) {
-                //send an internal notification i.e. slack to checkout customer/issue"
+                // send an internal notification i.e. slack to checkout customer/issue"
             }
         }
     }

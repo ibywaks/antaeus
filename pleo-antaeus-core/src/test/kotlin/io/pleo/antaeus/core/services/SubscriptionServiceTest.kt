@@ -8,14 +8,14 @@ import io.pleo.antaeus.core.exceptions.SubscriptionNotCreatedException
 import io.pleo.antaeus.core.exceptions.SubscriptionNotFoundException
 import io.pleo.antaeus.data.AntaeusDal
 import io.pleo.antaeus.models.*
+import java.math.BigDecimal
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import java.math.BigDecimal
 /* ktlint-enable no-wildcard-imports */
 
 class SubscriptionServiceTest {
-    private val dal = mockk<AntaeusDal>{
+    private val dal = mockk<AntaeusDal> {
         val result1 = Klaxon().parse<Subscription>("""
             {
                 "id": 200,
@@ -47,7 +47,7 @@ class SubscriptionServiceTest {
         """.trimIndent())
 
         val subscriptionUpdate1 = SubscriptionUpdateSchema(
-            amount = Money( value = BigDecimal(10000), currency = Currency.NGN)
+            amount = Money(value = BigDecimal(10000), currency = Currency.NGN)
         )
         val subscriptionUpdate2 = SubscriptionUpdateSchema(
             isDeleted = true

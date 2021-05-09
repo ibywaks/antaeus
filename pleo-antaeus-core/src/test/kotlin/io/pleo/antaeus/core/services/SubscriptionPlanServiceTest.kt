@@ -11,14 +11,14 @@ import io.pleo.antaeus.models.Currency
 import io.pleo.antaeus.models.Money
 import io.pleo.antaeus.models.SubscriptionPlan
 import io.pleo.antaeus.models.SubscriptionPlanUpdateSchema
+import java.math.BigDecimal
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import java.math.BigDecimal
 /* ktlint-enable no-wildcard-imports */
 
 class SubscriptionPlanServiceTest {
-    private val dal = mockk<AntaeusDal>{
+    private val dal = mockk<AntaeusDal> {
         val result1 = Klaxon().parse<SubscriptionPlan>("""
             {
                 "id": 200,
@@ -123,8 +123,8 @@ class SubscriptionPlanServiceTest {
             value = BigDecimal(100),
             currency = Currency.USD
         )
-        every { createSubscriptionPlan("Basic plan", planAmount1 ) } returns result1
-        every { createSubscriptionPlan("", planAmount2 ) } returns null
+        every { createSubscriptionPlan("Basic plan", planAmount1) } returns result1
+        every { createSubscriptionPlan("", planAmount2) } returns null
 
         val planUpdates1 = SubscriptionPlanUpdateSchema(
             amount = planAmount2
@@ -153,7 +153,7 @@ class SubscriptionPlanServiceTest {
 
     @Test
     fun `will return a valid plan`() {
-        val result =  subscriptionPlanService.fetch(200)
+        val result = subscriptionPlanService.fetch(200)
 
         assertEquals(result.id, 200)
         assertNull(result.deletedAt)
@@ -161,7 +161,7 @@ class SubscriptionPlanServiceTest {
 
     @Test
     fun `will return a soft deleted plan`() {
-        val result =  subscriptionPlanService.fetch(203)
+        val result = subscriptionPlanService.fetch(203)
 
         assertEquals(result.id, 203)
         assertNotNull(result.deletedAt)
@@ -169,7 +169,7 @@ class SubscriptionPlanServiceTest {
 
     @Test
     fun `will return a list of plans`() {
-        val results =  subscriptionPlanService.fetchAll(false)
+        val results = subscriptionPlanService.fetchAll(false)
 
         assertEquals(results.size, 2)
         assertNull(results[0].deletedAt)
@@ -177,7 +177,7 @@ class SubscriptionPlanServiceTest {
 
     @Test
     fun `will return a list of soft deleted plans`() {
-        val results =  subscriptionPlanService.fetchAll(true)
+        val results = subscriptionPlanService.fetchAll(true)
 
         assertEquals(results.size, 1)
         assertNotNull(results[0].deletedAt)
@@ -189,7 +189,7 @@ class SubscriptionPlanServiceTest {
             value = BigDecimal(50),
             currency = Currency.USD
         )
-        val result =  subscriptionPlanService.create("Basic plan", planAmount)
+        val result = subscriptionPlanService.create("Basic plan", planAmount)
 
         assertEquals(result.id, 200)
         assertEquals(result.name, "Basic plan")
@@ -218,7 +218,7 @@ class SubscriptionPlanServiceTest {
             amount = planAmount
         )
 
-        val result =  subscriptionPlanService.update(205, updates)
+        val result = subscriptionPlanService.update(205, updates)
 
         assertEquals(result.id, 205)
         assertEquals(result.amount.value, planAmount.value)
@@ -232,7 +232,7 @@ class SubscriptionPlanServiceTest {
             name = "Zaposs Basic Plan"
         )
 
-        val result =  subscriptionPlanService.update(205, updates)
+        val result = subscriptionPlanService.update(205, updates)
 
         assertEquals(result.id, 205)
         assertEquals(result.name, "Zaposs Basic Plan")
@@ -247,7 +247,7 @@ class SubscriptionPlanServiceTest {
             isDeleted = true
         )
 
-        val result =  subscriptionPlanService.update(205, updates)
+        val result = subscriptionPlanService.update(205, updates)
 
         assertEquals(result.id, 205)
         assertEquals(result.name, "Premium plan")
@@ -270,5 +270,4 @@ class SubscriptionPlanServiceTest {
             subscriptionPlanService.update(251, updates)
         }
     }
-
 }

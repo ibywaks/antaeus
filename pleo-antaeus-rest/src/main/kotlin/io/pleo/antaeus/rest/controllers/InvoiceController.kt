@@ -1,8 +1,6 @@
 package io.pleo.antaeus.rest.controllers
 
-import cc.vileda.openapi.dsl.mediaType
 import io.javalin.http.Context
-import io.javalin.http.Handler
 import io.javalin.plugin.openapi.annotations.*
 import io.pleo.antaeus.core.exceptions.CustomerNotFoundException
 import io.pleo.antaeus.core.exceptions.InvoiceNotCreatedException
@@ -69,7 +67,7 @@ class InvoiceController(
                     paymentRef = paymentRef
                 )
             ))
-        } catch (e: Exception) { ctx.status(400).result("unable to update invoice $id")}
+        } catch (e: Exception) { ctx.status(400).result("unable to update invoice $id") }
     }
 
     fun index(ctx: Context) {

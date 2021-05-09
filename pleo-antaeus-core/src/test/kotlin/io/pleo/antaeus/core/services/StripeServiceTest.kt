@@ -1,25 +1,22 @@
 package io.pleo.antaeus.core.services
 
-import com.beust.klaxon.Klaxon
 import io.mockk.justRun
-import io.mockk.every
 import io.mockk.mockk
 import io.mockk.spyk
 import io.pleo.antaeus.core.external.payment.ChargePayload
 import io.pleo.antaeus.core.external.payment.PaymentSetupDTO
-import io.pleo.antaeus.data.AntaeusDal
 import io.pleo.antaeus.core.external.payment.StripeService
+import io.pleo.antaeus.data.AntaeusDal
 import io.pleo.antaeus.models.*
+import java.math.BigDecimal
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.math.BigDecimal
 
 class StripeServiceTest {
     // mock dal
-    private val dal = mockk<AntaeusDal>{
-
+    private val dal = mockk<AntaeusDal> {
     }
 
     private val testApiKey = "sk_test_51ImgwpBaFgF9u9b7FUhawKwVfN7yldjzfbgRS27zHkmjHK0Ioo3oPcABKvoEAcSgMvNkxesDtagQOWb1wy61V6px00AVJpf1UL"
@@ -71,5 +68,4 @@ class StripeServiceTest {
 
         assertEquals(result, true)
     }
-
 }

@@ -1,11 +1,9 @@
 
-import io.pleo.antaeus.core.external.PaymentProvider
 import io.pleo.antaeus.data.AntaeusDal
 import io.pleo.antaeus.models.Currency
+import io.pleo.antaeus.models.InvoiceStatus
 import io.pleo.antaeus.models.Money
 import io.pleo.antaeus.models.SubscriptionPlan
-import io.pleo.antaeus.models.InvoiceStatus
-import io.pleo.antaeus.models.Invoice
 import java.math.BigDecimal
 import kotlin.random.Random
 
@@ -34,7 +32,7 @@ internal fun setupInitialData(dal: AntaeusDal) {
     }
 
     subscriptions.forEach { subscription ->
-        val subscriptionCustomer = customers.find{c -> c.id == subscription.customerId}
+        val subscriptionCustomer = customers.find { c -> c.id == subscription.customerId }
 
         if (subscriptionCustomer != null) {
             (1..10).forEach {

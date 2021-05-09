@@ -10,12 +10,12 @@ import io.pleo.antaeus.core.external.payment.ChargePayload
 import io.pleo.antaeus.core.external.payment.StripeService
 import io.pleo.antaeus.data.AntaeusDal
 import io.pleo.antaeus.models.*
+import java.math.BigDecimal
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
-import java.math.BigDecimal
 
 class BillingServiceTest {
     // mock dal
@@ -287,5 +287,4 @@ class BillingServiceTest {
 
         assertEquals(CustomerStatus.INACTIVE, customer.status)
     }
-
 }
