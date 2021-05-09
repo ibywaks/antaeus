@@ -22,6 +22,7 @@ import io.pleo.antaeus.rest.controllers.InvoiceController
 import io.pleo.antaeus.rest.controllers.StripeWebhookController
 import io.pleo.antaeus.rest.controllers.SubscriptionController
 import java.io.File
+import java.nio.file.Paths
 import java.sql.Connection
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -44,7 +45,8 @@ fun main() {
     val appMode = dotenv["MODE"]
     val dbPath = dotenv["DB_FILE"]
 
-    val dbFile: File = File(dbPath)
+    val path = Paths.get("../").toAbsolutePath().toString()
+    val dbFile: File = File(path, dbPath)
 
     // Connect to the database and create the needed tables. Drop any existing data.
     val db = Database
