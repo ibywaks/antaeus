@@ -25,7 +25,7 @@ class BillingService(
 
         if (customer.defaultStripePaymentMethodId == null) {
             // trigger some event to notify customer to setup payment
-             throw NoPaymentMethodException(invoice.customerId)
+            throw NoPaymentMethodException(invoice.customerId)
         }
 
         val invoiceAmount = invoice.amount.value * BigDecimal(100)
