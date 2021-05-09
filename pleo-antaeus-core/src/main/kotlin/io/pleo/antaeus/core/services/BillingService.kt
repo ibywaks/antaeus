@@ -6,6 +6,7 @@ import io.pleo.antaeus.core.external.payment.ChargePayload
 import io.pleo.antaeus.core.external.payment.PaymentSetupDTO
 import io.pleo.antaeus.core.external.payment.PaymentSetupObject
 import io.pleo.antaeus.models.*
+import java.lang.Exception
 import java.math.BigDecimal
 import java.util.*
 
@@ -59,9 +60,16 @@ class BillingService(
         val updatedInvoices = mutableListOf<Invoice>()
 
         invoices.forEach { invoice ->
-            updatedInvoices.add(
-                chargeInvoice(invoice)
-            )
+            try {
+                updatedInvoices.add(
+                    chargeInvoice(invoice)
+                )
+            } catch (e: Exception) {
+                //Update customer to inactive
+                customerService.update(invoice.customerId, CustomerUpdateSchema(CustomerStatus.INACTIVE))
+
+                TODO("send an internal notification i.e. slack to checkout customer/issue")
+            }
         }
 
         return updatedInvoices.toList()
@@ -71,11 +79,15 @@ class BillingService(
         val failedInvoices = invoiceService.fetchAll(false, InvoiceStatus.FAILED)
 
         failedInvoices.forEach { invoice ->
-            val updatedInvoice = chargeInvoice(invoice)
+            try {
+                val updatedInvoice = chargeInvoice(invoice)
 
-            // if exceeds retries disable customer
-            if (updatedInvoice.numberOfFailedCharges!! >= invoiceService.MAX_CHARGE_RETRIES)
-                customerService.update(invoice.customerId, CustomerUpdateSchema(CustomerStatus.INACTIVE))
+                // if exceeds retries disable customer
+                if (updatedInvoice.numberOfFailedCharges!! >= invoiceService.MAX_CHARGE_RETRIES)
+                    customerService.update(invoice.customerId, CustomerUpdateSchema(CustomerStatus.INACTIVE))
+            } catch (e: Exception) {
+                TODO("send an internal notification i.e. slack to checkout customer/issue")
+            }
         }
     }
 }

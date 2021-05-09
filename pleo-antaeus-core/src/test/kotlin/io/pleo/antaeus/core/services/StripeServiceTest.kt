@@ -28,9 +28,7 @@ class StripeServiceTest {
 
     private val stripeService = spyk(StripeService(
         testApiKey,
-        "",
-        customerService,
-        invoiceService
+        ""
     ), recordPrivateCalls = true)
 
     @BeforeEach
@@ -51,7 +49,7 @@ class StripeServiceTest {
         val intentObj = stripeService.initPaymentSetup(setupData)
 
         assertNotNull(intentObj)
-        assertNotNull(intentObj?.secretKey)
+        assertNotNull(intentObj.secretKey)
     }
 
     @Test

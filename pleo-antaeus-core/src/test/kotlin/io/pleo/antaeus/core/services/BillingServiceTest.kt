@@ -173,9 +173,7 @@ class BillingServiceTest {
 
     private val stripeService = spyk(StripeService(
         apiKey = testApiKey,
-        webhookSecretKey = "",
-        customerService = customerService,
-        invoiceService = invoiceService
+        webhookSecretKey = ""
     ), recordPrivateCalls = true)
 
     @BeforeEach
