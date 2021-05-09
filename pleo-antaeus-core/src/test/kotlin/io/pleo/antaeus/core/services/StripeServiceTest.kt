@@ -58,17 +58,6 @@ class StripeServiceTest {
             value = BigDecimal(5000),
             currency = Currency.NGN
         )
-//        val invoice = Invoice(
-//            id = 101,
-//            subscriptionId = 101,
-//            customerId = 200,
-//            amount = amount,
-//            status = InvoiceStatus.PENDING,
-//            chargeStartDate = 1619725878925,
-//            chargeEndDate = 1619725878925,
-//            createdAt = 1619725878925,
-//            updatedAt = 1619725878925
-//        )
 
         val payload = ChargePayload(
             amount = amount.value.toLong(),
