@@ -12,16 +12,11 @@ import com.stripe.model.PaymentIntent
 import com.stripe.model.SetupIntent
 import com.stripe.net.Webhook
 import com.stripe.param.SetupIntentCreateParams
-import io.pleo.antaeus.core.services.CustomerService
-import io.pleo.antaeus.core.services.InvoiceService
-import io.pleo.antaeus.models.*
 import java.lang.Exception
 
 class StripeService(
     private val apiKey: String,
-    private val webhookSecretKey: String,
-    private val customerService: CustomerService,
-    private val invoiceService: InvoiceService
+    private val webhookSecretKey: String
 ): PaymentProvider {
 
     override fun charge(payload: ChargePayload): Boolean {
@@ -84,98 +79,6 @@ class StripeService(
         } catch (e: SignatureVerificationException) {
             // log and return a custom exception
             throw Exception("something went wrong")
-        }
-    }
-
-    fun handleWebhookEvent(event: Event) {
-        val dataObjectDeserializer = event.dataObjectDeserializer
-        if (!dataObjectDeserializer.`object`.isPresent) {
-            throw Exception("something happened")
-        }
-
-        val stripeObject = dataObjectDeserializer.`object`.get()
-
-        when(event.type) {
-            "customer.created" -> {
-                val customerData = stripeObject as Customer
-
-                val stripeCustomerId = customerData.id
-                val pleoCustomerId = customerData.metadata["pleo_id"]
-
-                if (pleoCustomerId == null) {
-                    // log unrecognised customer created
-                    // keep it moving
-                    return
-                }
-
-                val update = CustomerUpdateSchema(stripeId = stripeCustomerId)
-                customerService.update(pleoCustomerId.toInt(), update)
-            }
-            "payment_intent.succeeded" -> {
-                val paymentIntentData = stripeObject as PaymentIntent
-
-                val paymentIntentId = paymentIntentData.id
-                val pleoInvoiceId = paymentIntentData.metadata["pleo_invoice_id"]
-
-                if (pleoInvoiceId == null) {
-                    // log unrecognised payment
-                    // keep it moving
-                    return
-                }
-
-                val invoiceUpdate = InvoiceUpdateSchema(
-                    paymentRef = paymentIntentId,
-                    status = InvoiceStatus.PAID
-                )
-                val invoice = invoiceService.update(pleoInvoiceId.toInt(), invoiceUpdate)
-
-                val customerUpdate = CustomerUpdateSchema(
-                    status = CustomerStatus.ACTIVE
-                )
-                customerService.update(invoice.customerId, customerUpdate)
-            }
-            "payment_intent.processing" -> {
-                val paymentIntentData = stripeObject as PaymentIntent
-
-                val paymentIntentId = paymentIntentData.id
-                val pleoInvoiceId = paymentIntentData.metadata["pleo_invoice_id"]
-
-                if (pleoInvoiceId == null) {
-                    // log unrecognised payment
-                    // keep it moving
-                    return
-                }
-
-                val invoiceUpdate = InvoiceUpdateSchema(
-                    paymentRef = paymentIntentId,
-                    status = InvoiceStatus.PROCESSING
-                )
-                invoiceService.update(pleoInvoiceId.toInt(), invoiceUpdate)
-            }
-            "setup_intent.succeeded" -> {
-                val setupIntentData = stripeObject as SetupIntent
-
-                val paymentMethodId = setupIntentData.paymentMethod
-                val customerId = setupIntentData.customer
-
-                val customer = Customer.retrieve(customerId)
-                if (customer == null) {
-                    // log unrecognised payment setup
-                    // keep it moving
-                    return
-                }
-
-                val pleoCustomerId = customer.metadata["pleo_id"]
-
-                if (pleoCustomerId == null) {
-                    // log unrecognised customer created
-                    // keep it moving
-                    return
-                }
-
-                val update = CustomerUpdateSchema(defaultStripePaymentMethodId = paymentMethodId)
-                customerService.update(pleoCustomerId.toInt(), update)
-            }
         }
     }
 }

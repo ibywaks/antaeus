@@ -19,6 +19,7 @@ import io.pleo.antaeus.data.AntaeusDal
 import io.pleo.antaeus.rest.AntaeusRest
 import io.pleo.antaeus.rest.controllers.CustomerController
 import io.pleo.antaeus.rest.controllers.InvoiceController
+import io.pleo.antaeus.rest.controllers.StripeWebhookController
 import io.pleo.antaeus.rest.controllers.SubscriptionController
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -75,9 +76,7 @@ fun main() {
     val webhookSecretKey = dotenv["STRIPE_WEBHOOK_SECRET"]
     val stripeService = StripeService(
         stripeAPISecret,
-        webhookSecretKey,
-        customerService,
-        invoiceService
+        webhookSecretKey
     )
 
     // This is _your_ billing service to be included where you see fit
@@ -107,12 +106,17 @@ fun main() {
     val subscriptionController = SubscriptionController(
         subscriptionService = subscriptionService
     )
+    val stripeWebhookController = StripeWebhookController(
+        invoiceService = invoiceService,
+        customerService = customerService,
+        stripeService = stripeService
+    )
 
     // Create REST web service
     AntaeusRest(
-        stripeService = stripeService,
         invoiceController = invoiceController,
         customerController = customerController,
-        subscriptionController = subscriptionController
+        subscriptionController = subscriptionController,
+        stripeWebhookController = stripeWebhookController
     ).run()
 }

@@ -26,6 +26,7 @@ import io.pleo.antaeus.core.services.SubscriptionService
 import io.pleo.antaeus.models.*
 import io.pleo.antaeus.rest.controllers.CustomerController
 import io.pleo.antaeus.rest.controllers.InvoiceController
+import io.pleo.antaeus.rest.controllers.StripeWebhookController
 import io.pleo.antaeus.rest.controllers.SubscriptionController
 import mu.KotlinLogging
 import java.text.SimpleDateFormat
@@ -42,10 +43,10 @@ private val logger = KotlinLogging.logger {}
 private val thisFile: () -> Unit = {}
 
 class AntaeusRest(
-    private val stripeService: StripeService,
     private val invoiceController: InvoiceController,
     private val customerController: CustomerController,
-    private val subscriptionController: SubscriptionController
+    private val subscriptionController: SubscriptionController,
+    private val stripeWebhookController: StripeWebhookController
 ) : Runnable {
 
     override fun run() {
@@ -272,22 +273,11 @@ class AntaeusRest(
                     .operation {
                         it.description("Stripe Webhook")
                     }
+                    .header<String>("stripe-signature")
                     .ignore(true)
                 post("stripe", documented(stripeWebhookDoc) {
-                    val secretSignature = it.header("stripe-signature")
-                    val requestBody = it.body()
-
-                    try {
-                        if (secretSignature != null) {
-                            val event = stripeService.generateEvent(requestBody, secretSignature)
-
-                            stripeService.handleWebhookEvent(event)
-                            it.status(200)
-                        }
-                    } catch (e: Exception) {
-                        it.status(400)
-                    }
-               })
+                    stripeWebhookController.handleWebhookEvent(it)
+                })
             }
         }
     }
