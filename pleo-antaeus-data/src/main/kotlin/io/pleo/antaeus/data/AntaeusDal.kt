@@ -146,6 +146,8 @@ class AntaeusDal(private val db: Database) {
 
             if (!isDeleted) {
                 query.andWhere{ SubscriptionTable.deletedAt.isNull() }
+            } else {
+                query.andWhere{ SubscriptionTable.deletedAt.isNotNull() }
             }
 
             if (customer != null) {
@@ -277,8 +279,11 @@ class AntaeusDal(private val db: Database) {
     fun fetchSubscriptionPlans(isDeleted: Boolean = false): List<SubscriptionPlan> {
         val query = SubscriptionPlanTable.selectAll()
 
-        if (!isDeleted)
+        if (!isDeleted) {
             query.andWhere { SubscriptionPlanTable.deletedAt.isNull() }
+        } else {
+            query.andWhere { SubscriptionPlanTable.deletedAt.isNotNull() }
+        }
 
         return query.map { it.toSubscriptionPlan() }
     }
