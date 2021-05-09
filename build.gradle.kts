@@ -21,9 +21,6 @@ allprojects {
             ktlint().userData(mapOf(
                 "disabled_rules" to "no-wildcard-imports"
             ))  // has its own section below
-//            ktfmt()    // has its own section below
-//            prettier() // has its own section below
-//            licenseHeader("/* (C)$YEAR */") // or licenseHeaderFile
         }
     }
 
