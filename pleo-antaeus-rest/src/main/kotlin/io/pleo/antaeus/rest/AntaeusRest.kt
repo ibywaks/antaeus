@@ -13,11 +13,9 @@ import io.javalin.plugin.openapi.dsl.document
 import io.javalin.plugin.openapi.dsl.documented
 import io.javalin.plugin.openapi.ui.SwaggerOptions
 import io.pleo.antaeus.core.exceptions.*
+import io.pleo.antaeus.core.external.payment.PaymentSetupObject
 import io.pleo.antaeus.models.*
-import io.pleo.antaeus.rest.controllers.CustomerController
-import io.pleo.antaeus.rest.controllers.InvoiceController
-import io.pleo.antaeus.rest.controllers.StripeWebhookController
-import io.pleo.antaeus.rest.controllers.SubscriptionController
+import io.pleo.antaeus.rest.controllers.*
 import io.swagger.v3.oas.models.info.Info
 import java.math.BigDecimal
 import mu.KotlinLogging
@@ -31,7 +29,8 @@ class AntaeusRest(
     private val invoiceController: InvoiceController,
     private val customerController: CustomerController,
     private val subscriptionController: SubscriptionController,
-    private val stripeWebhookController: StripeWebhookController
+    private val stripeWebhookController: StripeWebhookController,
+    private val paymentController: PaymentController
 ) : Runnable {
 
     override fun run() {
@@ -251,6 +250,17 @@ class AntaeusRest(
                             subscriptionController.edit(it)
                         })
                     }
+
+                    val paymentInitDoc = document()
+                        .operation {
+                            it.description("Endpoint to initialize adding payment method")
+                            it.addTagsItem("payment")
+                        }
+                        .queryParam<String>("customer_id") { it.description("The customer's payment method being initialised") }
+                        .json<PaymentSetupObject>("200")
+                    get("payment/init", documented(paymentInitDoc) {
+                        paymentController.initPaymentMethod(it)
+                    })
                 }
             }
             path("webhooks") {
