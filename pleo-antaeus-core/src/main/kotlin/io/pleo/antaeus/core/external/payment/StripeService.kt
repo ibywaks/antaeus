@@ -11,8 +11,13 @@ import com.stripe.model.SetupIntent
 import com.stripe.net.Webhook
 import com.stripe.param.PaymentIntentCreateParams
 import com.stripe.param.SetupIntentCreateParams
+import io.pleo.antaeus.core.exceptions.PaymentInitializationException
+import io.pleo.antaeus.core.exceptions.StripeWebhookEventConstructionException
 import io.pleo.antaeus.core.external.PaymentProvider
+import mu.KotlinLogging
 import java.lang.Exception
+
+private val logger = KotlinLogging.logger {}
 
 class StripeService(
     private val apiKey: String,
@@ -37,6 +42,7 @@ class StripeService(
             return true
         } catch (e: CardException) {
             // log issue
+            logger.error("Error at Stripe charge - payment intent creation", e.code, e.message)
             return false
         }
     }
@@ -67,8 +73,12 @@ class StripeService(
             return PaymentSetupObject(reference = intent.id, secretKey = intent.clientSecret)
         } catch (e: StripeException) {
             // throw custom error & do a log
-            // ${e.code} ${e.message}
-            throw Exception("something went wrong")
+            logger.error(
+                "Error at Stripe payment method initialization - create setup intent",
+                e.code,
+                e.message
+            )
+            throw PaymentInitializationException()
         }
     }
 
@@ -78,7 +88,8 @@ class StripeService(
             return Webhook.constructEvent(payload, sigHeader, webhookSecretKey)
         } catch (e: SignatureVerificationException) {
             // log and return a custom exception
-            throw Exception("something went wrong")
+            logger.error("Error at Stripe webhook event construction", e.code, e.message)
+            throw StripeWebhookEventConstructionException()
         }
     }
 }
