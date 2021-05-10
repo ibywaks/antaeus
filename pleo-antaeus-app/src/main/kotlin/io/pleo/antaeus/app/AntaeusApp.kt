@@ -17,10 +17,7 @@ import io.pleo.antaeus.data.InvoiceTable
 import io.pleo.antaeus.data.SubscriptionPlanTable
 import io.pleo.antaeus.data.SubscriptionTable
 import io.pleo.antaeus.rest.AntaeusRest
-import io.pleo.antaeus.rest.controllers.CustomerController
-import io.pleo.antaeus.rest.controllers.InvoiceController
-import io.pleo.antaeus.rest.controllers.StripeWebhookController
-import io.pleo.antaeus.rest.controllers.SubscriptionController
+import io.pleo.antaeus.rest.controllers.*
 import java.io.File
 import java.nio.file.Paths
 import java.sql.Connection
@@ -121,12 +118,17 @@ fun main() {
         customerService = customerService,
         stripeService = stripeService
     )
+    val paymentController = PaymentController(
+        customerService = customerService,
+        billingService = billingService
+    )
 
     // Create REST web service
     AntaeusRest(
         invoiceController = invoiceController,
         customerController = customerController,
         subscriptionController = subscriptionController,
-        stripeWebhookController = stripeWebhookController
+        stripeWebhookController = stripeWebhookController,
+        paymentController = paymentController
     ).run()
 }
