@@ -15,7 +15,6 @@ import io.pleo.antaeus.core.exceptions.PaymentInitializationException
 import io.pleo.antaeus.core.exceptions.StripeWebhookEventConstructionException
 import io.pleo.antaeus.core.external.PaymentProvider
 import mu.KotlinLogging
-import java.lang.Exception
 
 private val logger = KotlinLogging.logger {}
 

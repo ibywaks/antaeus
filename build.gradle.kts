@@ -29,6 +29,10 @@ allprojects {
         jcenter()
     }
 
+    tasks.create("stage") {
+        dependsOn("clean", "build")
+    }
+
     tasks.withType<KotlinCompile>().configureEach {
         kotlinOptions.jvmTarget = "11"
     }
