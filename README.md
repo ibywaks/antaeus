@@ -85,4 +85,10 @@ The code given is structured as follows. Feel free however to modify the structu
 * [Mockk](https://mockk.io/) - Mocking library
 * [Sqlite3](https://sqlite.org/index.html) - Database storage engine
 
-Happy hacking 😁!
+###Project Implementation Assumptions and Decisions
+* All users of Pleo select a plan on registration and must add a payment method to use the service
+* Subscription invoices are processed for charge on the first of each month
+* Invoice payment is based on a post-payment scheme i.e. customers are paying for service after use i.e. a credit model 
+* Mid month signups will result in a partial invoice charge - calculating the fees from the day of signup until the end of the month against the next charge date
+* On invoices that fail their charge attempt are marked and retried until successful or updated out of the failed state
+* On the 3rd failed charge attempt (3 days after charge day), customer is disabled and will only be re-enabled internally (after a risk evaluation)
