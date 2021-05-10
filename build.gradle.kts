@@ -38,6 +38,7 @@ allprojects {
     }
 
     tasks.withType<Test> {
-        useJUnitPlatform()
+//        useJUnitPlatform()
+        enabled = false
     }
 }
