@@ -15,13 +15,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class StripeServiceTest {
-    // mock dal
-    private val dal = mockk<AntaeusDal> {
-    }
-
     private val testApiKey = "sk_test_51ImgwpBaFgF9u9b7FUhawKwVfN7yldjzfbgRS27zHkmjHK0Ioo3oPcABKvoEAcSgMvNkxesDtagQOWb1wy61V6px00AVJpf1UL"
-    private val customerService = CustomerService(dal = dal)
-    private val invoiceService = InvoiceService(dal = dal)
 
     private val stripeService = spyk(StripeService(
         testApiKey,
