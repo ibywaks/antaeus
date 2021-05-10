@@ -10,7 +10,7 @@ class SubscriptionController(private val subscriptionService: SubscriptionServic
     fun list(ctx: Context) {
         val isDeleted = ctx.queryParam("is_deleted") == "true"
 
-        ctx.json(subscriptionService.fetchAll(isDeleted as Boolean))
+        ctx.json(subscriptionService.fetchAll(isDeleted))
     }
 
     fun index(ctx: Context) {
