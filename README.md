@@ -92,3 +92,7 @@ The code given is structured as follows. Feel free however to modify the structu
 * Mid month signups will result in a partial invoice charge - calculating the fees from the day of signup until the end of the month against the next charge date
 * On invoices that fail their charge attempt are marked and retried until successful or updated out of the failed state
 * On the 3rd failed charge attempt (3 days after charge day), customer is disabled and will only be re-enabled internally (after a risk evaluation)
+* I introduced subscription plan and subscription tables to keep track of what plans customers were being invoiced for. The subscription of a customer unlike invoice does not have a termination state, it exists as long as the customer exists and is used to create future invoices.
+* I implemented a payment service Stripe which I configured as the default and used to execute the invoice charges. For a customer to add their card the API will work in partnership with a frontend page that uses the Stripe checkout or Element script.
+* I also applied linting and Swagger documentation to the endpoints.
+* I tried to host the application on Heroku but kept encountering an error when the jar was run "java.lang.ClassNotFoundException: io.pleo.antaeus.app.AntaeusApp". I was unable to resolve this issue but have included all my build settings for review.
