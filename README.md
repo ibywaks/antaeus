@@ -85,7 +85,7 @@ The code given is structured as follows. Feel free however to modify the structu
 * [Mockk](https://mockk.io/) - Mocking library
 * [Sqlite3](https://sqlite.org/index.html) - Database storage engine
 
-###Project Implementation Assumptions and Decisions
+### Project Implementation Assumptions and Decisions
 * All users of Pleo select a plan on registration and must add a payment method to use the service
 * Subscription invoices are processed for charge on the first of each month
 * Invoice payment is based on a post-payment scheme i.e. customers are paying for service after use i.e. a credit model 
